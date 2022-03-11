@@ -43,13 +43,13 @@ def analyzeWebRTCStats(filepath, fromSampleN=5, toSampleN=54):
 
     for i, line in enumerate(open(filepath)):
         for match in re.finditer(callIdRegex, line):
-            print('Found call ID on line %s: %s' % (i + 1, match.group(1)))
+            # print('Found call ID on line %s: %s' % (i + 1, match.group(1)))
             callId = match.group(1)
         for match in re.finditer(pairIdRegex, line):
-            print('Found pair ID on line %s: %s' % (i + 1, match.group(1)))
+            # print('Found pair ID on line %s: %s' % (i + 1, match.group(1)))
             pairId = match.group(1)
         for match in re.finditer(topLevelIdRegex, line):
-            print('Found pair ID on line %s: %s-%s' % (i + 1, match.group(1), match.group(2)))
+            # print('Found pair ID on line %s: %s-%s' % (i + 1, match.group(1), match.group(2)))
             topId = match.group(1) + '-' + match.group(2)
             # since we do a loop only the last topId is taken which is what we want
 
@@ -163,16 +163,6 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
     for i in range(5):
         folderpaths.append(folderpath + dictlist[i].get("codec") + "/" + bitrate + "/" + bitrate + dictlist[i].get("res") + dictlist[i].get("fps"))
 
-    returnDict = {
-        "bitsPerSec": 0,
-        "qpSumPerFrame": 0,
-        "width": 0,
-        "height": 0,
-        "jitter": 0,
-        "jitterBufDelay": 0,
-        "RTT": 0,
-    }
-
     bitsPerSecMeans = [[0 for x in range(0)] for y in range(5)]
     qpSumPerFrameMeans = [[0 for x in range(0)] for y in range(5)]
     widthMeans = [[0 for x in range(0)] for y in range(5)]
@@ -189,34 +179,40 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
                 # if there is no extension it is a folder
                 if extension == "" and item != ".DS_Store":
                     statsDict = analyzeWebRTCStats(folderpaths[i] + "/" + item + "/" + "webrtc_internals_dump.txt", fromSampleN=5, toSampleN=54)
+                    bitsPerSecMeans[i].append(statsDict["bitsPerSec"])
+                    qpSumPerFrameMeans[i].append(statsDict["qpSumPerFrame"])
+                    widthMeans[i].append(statsDict["width"])
+                    heightMeans[i].append(statsDict["height"])
+                    jitterMeans[i].append(statsDict["jitter"])
+                    jitterBufDelayMeans[i].append(statsDict["jitterBufDelay"])
+                    RTTMeans[i].append(statsDict["RTT"])
 
-                    # csvMeans[i].append(analyzeWebRTCStats(folderpaths[i] + "/" + filename, fromSampleN=5, toSampleN=54))
 
-    # # if we have varying number of tests and therefore .csv files available we must find all in the folder
-    # for filename in os.listdir(folderpath1):
-    #     name, extension = os.path.splitext(filename)
-    #     if extension == ".csv":
-    #         mean1.append(analyzeLoggerData(folderpath1 + "/" + filename))
-    # npMean1 = np.asarray(mean1)
+    npbitsPerSecMeans = [np.empty([5]) for x in range(5)]
+    npqpSumPerFrameMeans = [np.empty([5]) for x in range(5)]
+    npwidthMeans = [np.empty([5]) for x in range(5)]
+    npheightMeans = [np.empty([5]) for x in range(5)]
+    npjitterMeans = [np.empty([5]) for x in range(5)]
+    npjitterBufDelayMeans = [np.empty([5]) for x in range(5)]
+    npRTTMeans = [np.empty([5]) for x in range(5)]
 
-    npMeans = [np.empty([5]) for x in range(5)]
     for i in range(5):
         # if we have varying number of tests and therefore .csv files available we must find all in the folder
         if dictlist[i].get("res") != "null":
-            npMeans[i] = np.asarray(csvMeans[i])
-
+            npbitsPerSecMeans[i] = np.asarray(bitsPerSecMeans[i])
+            npqpSumPerFrameMeans[i] = np.asarray(qpSumPerFrameMeans[i])
+            npwidthMeans[i] = np.asarray(widthMeans[i])
+            npheightMeans[i] = np.asarray(heightMeans[i])
+            npjitterMeans[i] = np.asarray(jitterMeans[i])
+            npjitterBufDelayMeans[i] = np.asarray(jitterBufDelayMeans[i])
+            npRTTMeans[i] = np.asarray(RTTMeans[i])
 
     for i in range(5):
         # if we have varying number of tests and therefore .csv files available we must find all in the folder
         if dictlist[i].get("res") != "null":
-            print(str(format(npMeans[i].mean(), ".2f")) + " " + str(format(npMeans[i].std(), ".2f")) + " " + str(format(npMeans[i].std(), ".2f")) + "  ", end="", flush=True)
+            print(str(format(npbitsPerSecMeans[i].mean(), ".2f")) + " " + str(format(npbitsPerSecMeans[i].std(), ".2f")) + " " + str(format(npbitsPerSecMeans[i].std(), ".2f")) + "  ", end="", flush=True)
 
     print("\n")
-    # print(str(format(npMean1.mean(), ".2f")) + " " + str(format(npMean1.std(), ".2f")) + " " + str(format(npMean1.std(), ".2f")) + "  " +
-    #       str(format(npMean2.mean(), ".2f")) + " " + str(format(npMean2.std(), ".2f")) + " " + str(format(npMean2.std(), ".2f")) + "  " +
-    #       str(format(npMean3.mean(), ".2f")) + " " + str(format(npMean3.std(), ".2f")) + " " + str(format(npMean3.std(), ".2f")) + "  " +
-    #       str(format(npMean4.mean(), ".2f")) + " " + str(format(npMean4.std(), ".2f")) + " " + str(format(npMean4.std(), ".2f")) + "  " +
-    #       str(format(npMean5.mean(), ".2f")) + " " + str(format(npMean5.std(), ".2f")) + " " + str(format(npMean5.std(), ".2f")))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

@@ -22,7 +22,7 @@ from ast import literal_eval
 import numpy as np
 import json
 
-def analyzeWebRTCStats(filepath, fromSampleN=5, toSampleN=54):
+def analyzeWebRTCStats(filepath, samplesFromTheBackN = 60, toSampleN=60):
     # print head including sampling interval
     with open(filepath) as myfile:
         head = [next(myfile) for x in range(6)]
@@ -105,31 +105,46 @@ def analyzeWebRTCStats(filepath, fromSampleN=5, toSampleN=54):
         "RemoteInboundJitter": 0,
         "bitsPerSecSent": 0,
         "qpSumPerFrameSent": 0,
+
+        "bitsPerSecVar": 0,
+        "qpSumPerFrameVar": 0,
+        "fpsVar": 0,
+        "widthVar": 0,
+        "heightVar": 0,
+        "pixelsVar": 0,
+        "jitterVar": 0,
+        "jitterBufDelayVar": 0,
+        "RTTVar": 0,
+        "AvailableBWVar": 0,
+        "RemoteInboundJitterVar": 0,
+        "bitsPerSecSentVar": 0,
+        "qpSumPerFrameSentVar": 0,
     }
 
     value = data['PeerConnections'][topId]['stats'][stringAvailableBW]['values']
     array = literal_eval(value)
     npArray = np.array(array)
-    # print(str(npArray[fromSampleN:].mean()))
-    returnDict["AvailableBW"] = npArray[fromSampleN:].mean()
+    returnDict["AvailableBW"] = npArray[-samplesFromTheBackN:].mean()
+    returnDict["AvailableBWVar"] = npArray[-samplesFromTheBackN:].var()
 
     value = data['PeerConnections'][topId]['stats'][stringRemoteInboundJitter]['values']
     array = literal_eval(value)
     npArray = np.array(array)
-    # print(str(npArray[fromSampleN:].mean()))
-    returnDict["RemoteInboundJitter"] = npArray[fromSampleN:].mean()
+    returnDict["RemoteInboundJitter"] = npArray[-samplesFromTheBackN:].mean()
+    returnDict["RemoteInboundJitterVar"] = npArray[-samplesFromTheBackN:].var()
 
     value = data['PeerConnections'][topId]['stats'][stringBitsPerSecSent]['values']
     array = literal_eval(value)
     npArray = np.array(array)
-    # print(str(npArray[fromSampleN:].mean()))
-    returnDict["bitsPerSecSent"] = npArray[fromSampleN:].mean()
+    returnDict["bitsPerSecSent"] = npArray[-samplesFromTheBackN:].mean()
+    returnDict["bitsPerSecSentVar"] = npArray[-samplesFromTheBackN:].var()
 
     value = data['PeerConnections'][topId]['stats'][stringQpSumPerFrameOutbound]['values']
     array = literal_eval(value)
     npArray = np.array(array)
-    # print(str(npArray[fromSampleN:].mean()))
-    returnDict["qpSumPerFrameSent"] = npArray[fromSampleN:].mean()
+    returnDict["qpSumPerFrameSent"] = npArray[-samplesFromTheBackN:].mean()
+    returnDict["qpSumPerFrameSentVar"] = npArray[-samplesFromTheBackN:].var()
+
 
 
 
@@ -139,57 +154,62 @@ def analyzeWebRTCStats(filepath, fromSampleN=5, toSampleN=54):
     value = data['PeerConnections'][topId]['stats'][stringBitsPerSecReceived]['values']
     array = literal_eval(value)
     npArray = np.array(array)
-    # print(str(npArray[fromSampleN:].mean()))
-    returnDict["bitsPerSec"] = npArray[fromSampleN:].mean()
+    returnDict["bitsPerSec"] = npArray[-samplesFromTheBackN:].mean()
+    returnDict["bitsPerSecVar"] = npArray[-samplesFromTheBackN:].var()
+
 
     value = data['PeerConnections'][topId]['stats'][stringQpSumPerFrame]['values']
     array = literal_eval(value)
     npArray = np.array(array)
-    # print(str(npArray[fromSampleN:].mean()))
-    returnDict["qpSumPerFrame"] = npArray[fromSampleN:].mean()
+    returnDict["qpSumPerFrame"] = npArray[-samplesFromTheBackN:].mean()
+    returnDict["qpSumPerFrameVar"] = npArray[-samplesFromTheBackN:].var()
+
 
     value = data['PeerConnections'][topId]['stats'][stringFps]['values']
     array = literal_eval(value)
     npArray = np.array(array)
-    # print(str(npArray[fromSampleN:].mean()))
-    returnDict["fps"] = npArray[fromSampleN:].mean()
+    returnDict["fps"] = npArray[-samplesFromTheBackN:].mean()
+    returnDict["fpsVar"] = npArray[-samplesFromTheBackN:].var()
+
 
 
     value = data['PeerConnections'][topId]['stats'][stringFrameWidth]['values']
     array = literal_eval(value)
     npArrayWidth = np.array(array)
-    # print(str(npArray[fromSampleN:].mean()))
-    returnDict["width"] = npArrayWidth[fromSampleN:].mean()
+    returnDict["width"] = npArrayWidth[-samplesFromTheBackN:].mean()
+    returnDict["widthVar"] = npArrayWidth[-samplesFromTheBackN:].var()
 
 
     value = data['PeerConnections'][topId]['stats'][stringFrameHeight]['values']
     array = literal_eval(value)
     npArrayHeight = np.array(array)
-    # print(str(npArray[fromSampleN:].mean()))
-    returnDict["height"] = npArrayHeight[fromSampleN:].mean()
+    returnDict["height"] = npArrayHeight[-samplesFromTheBackN:].mean()
+    returnDict["heightVar"] = npArrayHeight[-samplesFromTheBackN:].var()
 
-    returnDict["pixels"] = np.mean(np.multiply(npArrayHeight[fromSampleN:], npArrayWidth[fromSampleN:]))
+    returnDict["pixels"] = np.mean(np.multiply(npArrayHeight[-samplesFromTheBackN:], npArrayWidth[-samplesFromTheBackN:]))
+    returnDict["pixelsVar"] = np.var(np.multiply(npArrayHeight[-samplesFromTheBackN:], npArrayWidth[-samplesFromTheBackN:]))
 
 
     value = data['PeerConnections'][topId]['stats'][stringJitter]['values']
     array = literal_eval(value)
     npArray = np.array(array)
-    # print(str(npArray[fromSampleN:].mean()))
-    returnDict["jitter"] = npArray[fromSampleN:].mean()
+    returnDict["jitter"] = npArray[-samplesFromTheBackN:].mean()
+    returnDict["jitterVar"] = npArray[-samplesFromTheBackN:].var()
+
 
 
     value = data['PeerConnections'][topId]['stats'][stringJitterBufferDelay]['values']
     array = literal_eval(value)
     npArray = np.array(array)
-    # print(str(npArray[fromSampleN:].mean()))
-    returnDict["jitterBufDelay"] = npArray[fromSampleN:].mean()
+    returnDict["jitterBufDelay"] = npArray[-samplesFromTheBackN:].mean()
+    returnDict["jitterBufDelayVar"] = npArray[-samplesFromTheBackN:].var()
 
 
     value = data['PeerConnections'][topId]['stats'][stringRTT]['values']
     array = literal_eval(value)
     npArray = np.array(array)
-    # print(str(npArray[fromSampleN:].mean()))
-    returnDict["RTT"] = npArray[fromSampleN:].mean()
+    returnDict["RTT"] = npArray[-samplesFromTheBackN:].mean()
+    returnDict["RTTVar"] = npArray[-samplesFromTheBackN:].var()
 
     # Closing file
     f.close()
@@ -200,7 +220,7 @@ def analyzeWebRTCStats(filepath, fromSampleN=5, toSampleN=54):
 
 def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2="null", codec2="null",
                       res3="null", fps3="null", codec3="null", res4="null", fps4="null", codec4="null",
-                      res5="null", fps5="null", codec5="null", startSample=5):
+                      res5="null", fps5="null", codec5="null", nSamplesFromTheBackN=60):
 
     requests = [dict() for x in range(5)]
     requests[0] = {"res": res1, "fps": fps1, "codec": codec1}
@@ -227,6 +247,22 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
     bitsPerSecSentMeans = [[0 for x in range(0)] for y in range(5)]
     qpSumPerFrameSentMeans = [[0 for x in range(0)] for y in range(5)]
 
+    # we want to calculate the variance of the average calculated from the tests
+    # the formula is: stddev = sqrt(mean(variances)) = sqrt(sum(variances)/n)
+    # https://stats.stackexchange.com/questions/168971/variance-of-an-average-of-random-variables
+    bitsPerSecVars = [[0 for x in range(0)] for y in range(5)]
+    qpSumPerFrameVars = [[0 for x in range(0)] for y in range(5)]
+    fpsVars = [[0 for x in range(0)] for y in range(5)]
+    widthVars = [[0 for x in range(0)] for y in range(5)]
+    heightVars = [[0 for x in range(0)] for y in range(5)]
+    pixelsVars = [[0 for x in range(0)] for y in range(5)]
+    jitterVars = [[0 for x in range(0)] for y in range(5)]
+    jitterBufDelayVars = [[0 for x in range(0)] for y in range(5)]
+    RTTVars = [[0 for x in range(0)] for y in range(5)]
+    availableBWVars = [[0 for x in range(0)] for y in range(5)]
+    remoteJitterVars = [[0 for x in range(0)] for y in range(5)]
+    bitsPerSecSentVars = [[0 for x in range(0)] for y in range(5)]
+    qpSumPerFrameSentVars = [[0 for x in range(0)] for y in range(5)]
 
 
 
@@ -237,7 +273,7 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
                 name, extension = os.path.splitext(item)
                 # if there is no extension it is a folder
                 if extension == "" and item != ".DS_Store":
-                    statsDict = analyzeWebRTCStats(folderpaths[i] + "/" + item + "/" + "webrtc_internals_dump.txt", fromSampleN=startSample, toSampleN=54)
+                    statsDict = analyzeWebRTCStats(folderpaths[i] + "/" + item + "/" + "webrtc_internals_dump.txt", samplesFromTheBackN=nSamplesFromTheBackN, toSampleN=54)
                     bitsPerSecMeans[i].append(statsDict["bitsPerSec"])
                     qpSumPerFrameMeans[i].append(statsDict["qpSumPerFrame"])
                     fpsMeans[i].append(statsDict["fps"])
@@ -251,6 +287,24 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
                     remoteJitterMeans[i].append(statsDict["RemoteInboundJitter"])
                     bitsPerSecSentMeans[i].append(statsDict["bitsPerSecSent"])
                     qpSumPerFrameSentMeans[i].append(statsDict["qpSumPerFrameSent"])
+
+                    bitsPerSecVars[i].append(statsDict["bitsPerSecVar"])
+                    qpSumPerFrameVars[i].append(statsDict["qpSumPerFrameVar"])
+                    fpsVars[i].append(statsDict["fpsVar"])
+                    widthVars[i].append(statsDict["widthVar"])
+                    heightVars[i].append(statsDict["heightVar"])
+                    pixelsVars[i].append(statsDict["pixelsVar"])
+                    jitterVars[i].append(statsDict["jitterVar"])
+                    jitterBufDelayVars[i].append(statsDict["jitterBufDelayVar"])
+                    RTTVars[i].append(statsDict["RTTVar"])
+                    availableBWVars[i].append(statsDict["AvailableBWVar"])
+                    remoteJitterVars[i].append(statsDict["RemoteInboundJitterVar"])
+                    bitsPerSecSentVars[i].append(statsDict["bitsPerSecSentVar"])
+                    qpSumPerFrameSentVars[i].append(statsDict["qpSumPerFrameSentVar"])
+
+
+
+
 
 
     npbitsPerSecMeans = [np.empty([5]) for x in range(5)]
@@ -267,6 +321,19 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
     npBitsPerSecSentMeans = [np.empty([5]) for x in range(5)]
     npqpSumPerFrameSentMeans = [np.empty([5]) for x in range(5)]
 
+    npbitsPerSecVars = [np.empty([5]) for x in range(5)]
+    npqpSumPerFrameVars = [np.empty([5]) for x in range(5)]
+    npfpsVars = [np.empty([5]) for x in range(5)]
+    npwidthVars = [np.empty([5]) for x in range(5)]
+    npheightVars = [np.empty([5]) for x in range(5)]
+    nppixelsVars = [np.empty([5]) for x in range(5)]
+    npjitterVars = [np.empty([5]) for x in range(5)]
+    npjitterBufDelayVars = [np.empty([5]) for x in range(5)]
+    npRTTVars = [np.empty([5]) for x in range(5)]
+    npAvailableBWVars = [np.empty([5]) for x in range(5)]
+    npRemoteJitterVars = [np.empty([5]) for x in range(5)]
+    npBitsPerSecSentVars = [np.empty([5]) for x in range(5)]
+    npqpSumPerFrameSentVars = [np.empty([5]) for x in range(5)]
 
     for k in range(5):
         # if we have varying number of tests and therefore .csv files available we must find all in the folder
@@ -285,6 +352,20 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
             npBitsPerSecSentMeans[k] = np.asarray(bitsPerSecSentMeans[k])
             npqpSumPerFrameSentMeans[k] = np.asarray(qpSumPerFrameSentMeans[k])
 
+            npbitsPerSecVars[k] = np.asarray(bitsPerSecVars[k])
+            npqpSumPerFrameVars[k] = np.asarray(qpSumPerFrameVars[k])
+            npfpsVars[k] = np.asarray(fpsVars[k])
+            npwidthVars[k] = np.asarray(widthVars[k])
+            npheightVars[k] = np.asarray(heightVars[k])
+            nppixelsVars[k] = np.asarray(pixelsVars[k])
+            npjitterVars[k] = np.asarray(jitterVars[k])
+            npjitterBufDelayVars[k] = np.asarray(jitterBufDelayVars[k])
+            npRTTVars[k] = np.asarray(RTTVars[k])
+            npAvailableBWVars[k] = np.asarray(availableBWVars[k])
+            npRemoteJitterVars[k] = np.asarray(remoteJitterVars[k])
+            npBitsPerSecSentVars[k] = np.asarray(bitsPerSecSentVars[k])
+            npqpSumPerFrameSentVars[k] = np.asarray(qpSumPerFrameSentVars[k])
+
 
     returnedDictTests = {
         "bitsPerSec": npbitsPerSecMeans,
@@ -300,6 +381,21 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
         "RemoteInboundJitter": npRemoteJitterMeans,
         "bitsPerSecSent": npBitsPerSecSentMeans,
         "qpSumPerFrameSent": npqpSumPerFrameSentMeans,
+
+        "bitsPerSecVar": npbitsPerSecVars,
+        "qpSumPerFrameVar": npqpSumPerFrameVars,
+        "fpsVar": npfpsVars,
+        "widthVar": npwidthVars,
+        "heightVar": npheightVars,
+        "pixelsVar": nppixelsVars,
+        "jitterVar": npjitterVars,
+        "jitterBufDelayVar": npjitterBufDelayVars,
+        "RTTVar": npRTTVars,
+        "AvailableBWVar": npAvailableBWVars,
+        "RemoteInboundJitterVar": npRemoteJitterVars,
+        "bitsPerSecSentVar": npBitsPerSecSentVars,
+        "qpSumPerFrameSentVar": npqpSumPerFrameSentVars,
+
         "dictlist": requests
     }
 
@@ -334,23 +430,23 @@ if __name__ == '__main__':
     # listBitratesStrings = ["300", "600", "900", "1300", "1800", "2700", "4000", "4750", "6000"]
     # # we fix the start sample to 20s which is a good time for ramp up
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="300", res1="_small_", fps1="30", codec1="H264",
-    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="600", res1="_small_", fps1="30", codec1="H264",
-    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="900", res1="_small_", fps1="30", codec1="H264",
-    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="1300", res1="_small_", fps1="30", codec1="H264",
-    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="1800", res1="_small_", fps1="30", codec1="H264",
-    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="2700", res1="_small_", fps1="30", codec1="H264",
-    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="4000", res1="_small_", fps1="30", codec1="H264",
-    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="4750", res1="_small_", fps1="30", codec1="H264",
-    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="6000", res1="_small_", fps1="30", codec1="H264",
-    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="30", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
 
 
 
@@ -360,19 +456,19 @@ if __name__ == '__main__':
     # listBitratesStrings = ["600", "900", "1300", "1800", "2700", "4000", "6000"]
     # # we fix the start sample to 20s which is a good time for ramp up
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="600", res1="_small_", fps1="15", codec1="H264",
-    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="900", res1="_small_", fps1="15", codec1="H264",
-    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="1300", res1="_small_", fps1="15", codec1="H264",
-    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="1800", res1="_small_", fps1="15", codec1="H264",
-    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="2700", res1="_small_", fps1="15", codec1="H264",
-    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="4000", res1="_small_", fps1="15", codec1="H264",
-    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="6000", res1="_small_", fps1="15", codec1="H264",
-    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", startSample=20))
+    #                   res2="_large_", fps2="15", codec2="H264", res3="_auto_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
 
 
 
@@ -382,13 +478,13 @@ if __name__ == '__main__':
     # listBitratesStrings = ["900", "1800", "4000", "6000"]
     # # we fix the start sample to 20s which is a good time for ramp up
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="900", res1="_small_", fps1="30", codec1="VP8",
-    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8", startSample=20))
+    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="1800", res1="_small_", fps1="30", codec1="VP8",
-    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8", startSample=20))
+    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="4000", res1="_small_", fps1="30", codec1="VP8",
-    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8", startSample=20))
+    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="6000", res1="_small_", fps1="30", codec1="VP8",
-    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8", startSample=20))
+    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8", nSamplesFromTheBackN=60))
 
 
     # # VP8 vs H264 tests
@@ -397,16 +493,16 @@ if __name__ == '__main__':
     # # we fix the start sample to 20s which is a good time for ramp up
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="900", res1="_small_", fps1="30", codec1="H264",
     #                                        res2="_small_", fps2="30", codec2="VP8", res3="_large_", fps3="30", codec3="H264",
-    #                                        res4="_large_", fps4="30", codec4="VP8", startSample=20))
+    #                                        res4="_large_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="1800", res1="_small_", fps1="30", codec1="H264",
     #                                        res2="_small_", fps2="30", codec2="VP8", res3="_large_", fps3="30", codec3="H264",
-    #                                        res4="_large_", fps4="30", codec4="VP8", startSample=20))
+    #                                        res4="_large_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="4000", res1="_small_", fps1="30", codec1="H264",
     #                                        res2="_small_", fps2="30", codec2="VP8", res3="_large_", fps3="30", codec3="H264",
-    #                                        res4="_large_", fps4="30", codec4="VP8", startSample=20))
+    #                                        res4="_large_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="6000", res1="_small_", fps1="30", codec1="H264",
     #                                        res2="_small_", fps2="30", codec2="VP8", res3="_large_", fps3="30", codec3="H264",
-    #                                        res4="_large_", fps4="30", codec4="VP8", startSample=20))
+    #                                        res4="_large_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
 
 
 
@@ -415,25 +511,25 @@ if __name__ == '__main__':
     # listBitratesStrings = ["600", "900", "1300", "1800", "2700", "4000", "6000"]
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="600", res1="_small_", fps1="15", codec1="H264",
     #                                        res2="_small_", fps2="30", codec2="H264", res3="_large_", fps3="15", codec3="H264",
-    #                                        res4="_large_", fps4="30", codec4="H264", startSample=20))
+    #                                        res4="_large_", fps4="30", codec4="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="900", res1="_small_", fps1="15", codec1="H264",
     #                                        res2="_small_", fps2="30", codec2="H264", res3="_large_", fps3="15", codec3="H264",
-    #                                        res4="_large_", fps4="30", codec4="H264", startSample=20))
+    #                                        res4="_large_", fps4="30", codec4="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="1300", res1="_small_", fps1="15", codec1="H264",
     #                                        res2="_small_", fps2="30", codec2="H264", res3="_large_", fps3="15", codec3="H264",
-    #                                        res4="_large_", fps4="30", codec4="H264", startSample=20))
+    #                                        res4="_large_", fps4="30", codec4="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="1800", res1="_small_", fps1="15", codec1="H264",
     #                                        res2="_small_", fps2="30", codec2="H264", res3="_large_", fps3="15", codec3="H264",
-    #                                        res4="_large_", fps4="30", codec4="H264", startSample=20))
+    #                                        res4="_large_", fps4="30", codec4="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="2700", res1="_small_", fps1="15", codec1="H264",
     #                                        res2="_small_", fps2="30", codec2="H264", res3="_large_", fps3="15", codec3="H264",
-    #                                        res4="_large_", fps4="30", codec4="H264", startSample=20))
+    #                                        res4="_large_", fps4="30", codec4="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="4000", res1="_small_", fps1="15", codec1="H264",
     #                                        res2="_small_", fps2="30", codec2="H264", res3="_large_", fps3="15", codec3="H264",
-    #                                        res4="_large_", fps4="30", codec4="H264", startSample=20))
+    #                                        res4="_large_", fps4="30", codec4="H264", nSamplesFromTheBackN=60))
     # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="6000", res1="_small_", fps1="15", codec1="H264",
     #                                        res2="_small_", fps2="30", codec2="H264", res3="_large_", fps3="15", codec3="H264",
-    #                                        res4="_large_", fps4="30", codec4="H264", startSample=20))
+    #                                        res4="_large_", fps4="30", codec4="H264", nSamplesFromTheBackN=60))
 
 
     # PC only
@@ -441,23 +537,22 @@ if __name__ == '__main__':
     listBitratesStrings = ["480", "720", "1080", "720H264"]
     dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="nolimit",
                       res1="_480_", fps1="10", codec1="VP8",
-                      res2="_480_", fps2="30", codec2="VP8", startSample=20))
+                      res2="_480_", fps2="30", codec2="VP8", nSamplesFromTheBackN=60))
     dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="nolimit",
                       res1="_720_", fps1="10", codec1="VP8",
-                      res2="_720_", fps2="30", codec2="VP8", startSample=20))
+                      res2="_720_", fps2="30", codec2="VP8", nSamplesFromTheBackN=60))
     dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="nolimit",
                       res1="_1080_", fps1="10", codec1="VP8",
-                      res2="_1080_", fps2="30", codec2="VP8", startSample=20))
+                      res2="_1080_", fps2="30", codec2="VP8", nSamplesFromTheBackN=60))
     dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="nolimit",
                       res1="_720_", fps1="10", codec1="H264",
-                      res2="_720_", fps2="30", codec2="H264", startSample=20))
+                      res2="_720_", fps2="30", codec2="H264", nSamplesFromTheBackN=60))
 
 
 
-
-
-
-
+    # we want to calculate the variance of the average calculated from the tests
+    # the formula is: stddev = sqrt(mean(variances)) = sqrt(sum(variances)/n)
+    # https://stats.stackexchange.com/questions/168971/variance-of-an-average-of-random-variables
     
     ################ Received Bitrate
     print("\nReceived Bitrate:")
@@ -467,13 +562,12 @@ if __name__ == '__main__':
         print(listBitratesStrings[i] + " ", end="", flush=True)
         for j in range(5):
             npArrayValue = dictsBitrates[i]["bitsPerSec"][j]
+            npArrayValueVar = dictsBitrates[i]["bitsPerSecVar"][j]
             npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + "  ", end="", flush=True)
+                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
         print("\n")
-
-
 
 
 
@@ -485,10 +579,11 @@ if __name__ == '__main__':
         print(listBitratesStrings[i] + " ", end="", flush=True)
         for j in range(5):
             npArrayValue = dictsBitrates[i]["bitsPerSecSent"][j]
+            npArrayValueVar = dictsBitrates[i]["bitsPerSecSentVar"][j]
             npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + "  ", end="", flush=True)
+                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
         print("\n")
 
     ################ Available BW
@@ -499,10 +594,11 @@ if __name__ == '__main__':
         print(listBitratesStrings[i] + " ", end="", flush=True)
         for j in range(5):
             npArrayValue = dictsBitrates[i]["AvailableBW"][j]
+            npArrayValueVar = dictsBitrates[i]["AvailableBWVar"][j]
             npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + "  ", end="", flush=True)
+                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
         print("\n")
 
 
@@ -516,10 +612,11 @@ if __name__ == '__main__':
         print(listBitratesStrings[i] + " ", end="", flush=True)
         for j in range(5):
             npArrayValue = dictsBitrates[i]["qpSumPerFrame"][j]
+            npArrayValueVar = dictsBitrates[i]["qpSumPerFrameVar"][j]
             npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + "  ", end="", flush=True)
+                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
         print("\n")
 
     ################ fps
@@ -530,10 +627,11 @@ if __name__ == '__main__':
         print(listBitratesStrings[i] + " ", end="", flush=True)
         for j in range(5):
             npArrayValue = dictsBitrates[i]["fps"][j]
+            npArrayValueVar = dictsBitrates[i]["fpsVar"][j]
             npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + "  ", end="", flush=True)
+                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
         print("\n")
 
     ################ pixels
@@ -544,10 +642,11 @@ if __name__ == '__main__':
         print(listBitratesStrings[i] + " ", end="", flush=True)
         for j in range(5):
             npArrayValue = dictsBitrates[i]["pixels"][j]
+            npArrayValueVar = dictsBitrates[i]["pixelsVar"][j]
             npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + "  ", end="", flush=True)
+                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
         print("\n")
 
     ################ width
@@ -558,10 +657,11 @@ if __name__ == '__main__':
         print(listBitratesStrings[i] + " ", end="", flush=True)
         for j in range(5):
             npArrayValue = dictsBitrates[i]["width"][j]
+            npArrayValueVar = dictsBitrates[i]["widthVar"][j]
             npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + "  ", end="", flush=True)
+                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
         print("\n")
 
     ################ jitter
@@ -572,11 +672,12 @@ if __name__ == '__main__':
         print(listBitratesStrings[i] + " ", end="", flush=True)
         for j in range(5):
             npArrayValue = dictsBitrates[i]["jitter"][j]
+            npArrayValueVar = dictsBitrates[i]["jitterVar"][j]
             npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
                 print(str(format(npArrayValue.mean(), ".5f")) + " " + str(
-                    format(npArrayValue.std(), ".5f")) + " " + str(format(npArrayValue.std(), ".5f")) + "  ",
+                    format(np.sqrt(npArrayValueVar.mean()), ".5f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".5f")) + "  ",
                       end="", flush=True)
         print("\n")
 
@@ -588,11 +689,12 @@ if __name__ == '__main__':
         print(listBitratesStrings[i] + " ", end="", flush=True)
         for j in range(5):
             npArrayValue = dictsBitrates[i]["RemoteInboundJitter"][j]
+            npArrayValueVar = dictsBitrates[i]["RemoteInboundJitterVar"][j]
             npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
                 print(str(format(npArrayValue.mean(), ".5f")) + " " + str(
-                    format(npArrayValue.std(), ".5f")) + " " + str(format(npArrayValue.std(), ".5f")) + "  ",
+                    format(np.sqrt(npArrayValueVar.mean()), ".5f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".5f")) + "  ",
                       end="", flush=True)
         print("\n")
 
@@ -604,9 +706,10 @@ if __name__ == '__main__':
         print(listBitratesStrings[i] + " ", end="", flush=True)
         for j in range(5):
             npArrayValue = dictsBitrates[i]["qpSumPerFrameSent"][j]
+            npArrayValueVar = dictsBitrates[i]["qpSumPerFrameSentVar"][j]
             npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + " " + str(format(npArrayValue.std(), ".2f")) + "  ", end="", flush=True)
+                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
         print("\n")
 

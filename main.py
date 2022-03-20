@@ -233,6 +233,7 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
     for i in range(5):
         folderpaths.append(folderpath + requests[i].get("codec") + "/" + bitrate + "/" + bitrate + requests[i].get("res") + requests[i].get("fps"))
 
+
     bitsPerSecMeans = [[0 for x in range(0)] for y in range(5)]
     qpSumPerFrameMeans = [[0 for x in range(0)] for y in range(5)]
     fpsMeans = [[0 for x in range(0)] for y in range(5)]
@@ -246,6 +247,9 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
     remoteJitterMeans = [[0 for x in range(0)] for y in range(5)]
     bitsPerSecSentMeans = [[0 for x in range(0)] for y in range(5)]
     qpSumPerFrameSentMeans = [[0 for x in range(0)] for y in range(5)]
+
+    CurrentMeans = [[0 for x in range(0)] for y in range(5)]
+
 
     # we want to calculate the variance of the average calculated from the tests
     # the formula is: stddev = sqrt(mean(variances)) = sqrt(sum(variances)/n)
@@ -267,10 +271,17 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
 
 
     for i in range(5):
+
+
+
         # if we have varying number of tests and therefore .csv files available we must find all in the folder
         if requests[i].get("res") != "null":
             for item in os.listdir(folderpaths[i]):
                 name, extension = os.path.splitext(item)
+
+                if extension == ".csv":
+                    CurrentMeans[i].append(analyzeLoggerData(folderpaths[i] + "/" + item))
+
                 # if there is no extension it is a folder
                 if extension == "" and item != ".DS_Store":
                     statsDict = analyzeWebRTCStats(folderpaths[i] + "/" + item + "/" + "webrtc_internals_dump.txt", samplesFromTheBackN=nSamplesFromTheBackN, toSampleN=54)
@@ -332,6 +343,8 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
     npBitsPerSecSentMeans = [np.empty([5]) for x in range(5)]
     npqpSumPerFrameSentMeans = [np.empty([5]) for x in range(5)]
 
+    npCurrentMeans = [np.empty([5]) for x in range(5)]
+
     npbitsPerSecVars = [np.empty([5]) for x in range(5)]
     npqpSumPerFrameVars = [np.empty([5]) for x in range(5)]
     npfpsVars = [np.empty([5]) for x in range(5)]
@@ -345,6 +358,8 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
     npRemoteJitterVars = [np.empty([5]) for x in range(5)]
     npBitsPerSecSentVars = [np.empty([5]) for x in range(5)]
     npqpSumPerFrameSentVars = [np.empty([5]) for x in range(5)]
+
+
 
     for k in range(5):
         # if we have varying number of tests and therefore .csv files available we must find all in the folder
@@ -377,6 +392,8 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
             npBitsPerSecSentVars[k] = np.asarray(bitsPerSecSentVars[k])
             npqpSumPerFrameSentVars[k] = np.asarray(qpSumPerFrameSentVars[k])
 
+            npCurrentMeans[k] = np.asarray(CurrentMeans[k])
+
 
     returnedDictTests = {
         "bitsPerSec": npbitsPerSecMeans,
@@ -407,6 +424,8 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
         "bitsPerSecSentVar": npBitsPerSecSentVars,
         "qpSumPerFrameSentVar": npqpSumPerFrameSentVars,
 
+        "current": npCurrentMeans,
+
         "dictlist": requests
     }
 
@@ -417,6 +436,30 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
     #     if dictlist[i].get("res") != "null":
     #         print(str(format(npbitsPerSecMeans[i].mean(), ".2f")) + " " + str(format(npbitsPerSecMeans[i].std(), ".2f")) + " " + str(format(npbitsPerSecMeans[i].std(), ".2f")) + "  ", end="", flush=True)
     # print("\n")
+
+
+
+
+
+
+
+
+
+
+def analyzeLoggerData(filepath):
+    with open(filepath) as myfile:
+        head = [next(myfile) for x in range(6)]
+
+    df = pd.read_csv(filepath, sep=",", skiprows=6)
+
+    meanC = df['Curr avg 1'].mean()
+    """
+    Given that the voltage is relatively stable (normal stddev around 6mV) 
+    we can look at the current stddev directly to get a good estimate of the power standard deviation
+    If the voltage changes strongly together with the current we also have to consider power stddev
+    """
+    return meanC*1000
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -572,30 +615,112 @@ if __name__ == '__main__':
                                            res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
     dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate="1300",
                                            res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate="1800",
+                                           res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate="2700",
+                                           res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate="4000",
+                                           res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate="4750",
+                                           res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate="6000",
+                                           res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
 
 
-    ################ Received Bitrate
-    print("\n 3D plot:")
+    dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate="300",
+                                           res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate="600",
+                                           res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate="900",
+                                           res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate="1300",
+                                           res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate="1800",
+                                           res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate="2700",
+                                           res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate="4000",
+                                           res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate="4750",
+                                           res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate="6000",
+                                           res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+
+
+
+    dictsBitratesAuto.append(analyzeTestCustom(args.folderpath, bitrate="300",
+                                           res1="_auto_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesAuto.append(analyzeTestCustom(args.folderpath, bitrate="600",
+                                           res1="_auto_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesAuto.append(analyzeTestCustom(args.folderpath, bitrate="900",
+                                           res1="_auto_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesAuto.append(analyzeTestCustom(args.folderpath, bitrate="1300",
+                                           res1="_auto_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesAuto.append(analyzeTestCustom(args.folderpath, bitrate="1800",
+                                           res1="_auto_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesAuto.append(analyzeTestCustom(args.folderpath, bitrate="2700",
+                                           res1="_auto_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesAuto.append(analyzeTestCustom(args.folderpath, bitrate="4000",
+                                           res1="_auto_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesAuto.append(analyzeTestCustom(args.folderpath, bitrate="4750",
+                                           res1="_auto_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesAuto.append(analyzeTestCustom(args.folderpath, bitrate="6000",
+                                           res1="_auto_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+
+    ################ 3D plot
+    # small jitter300 MOS300 power300 jitter600 ...
+    # large jitter300 MOS300 power300 jitter600 ...
+    # auto  jitter300 MOS300 power300 jitter600 ...
+
+    npArrayMOSSmall = [2.2225, 2.4125, 3.18, 2.8175, 3.5375, 3.3075, 3.6, 3.0625, 3.62]
+    npArrayMOSLarge = [2.445,2.795,2.8725,3.505,3.435,3.525,3.1325,3.69,3.745 ]
+    npArrayMOSAuto = [2.46,2.5325,2.616,2.6375,2.9,3.38,3.4325,3.5375,3.605 ]
+
+    # for small
+    print("\n 3D plot small:")
     # loop over the dictionaries meaning loop over the bitrates (columns in output text)
     for i in range(len(dictsBitratesSmall)):
         # for every bitrate we want to get the average jitter, MOS and power
-        # small jitter300 MOS300 power300 jitter600 ...
-        # large jitter300 MOS300 power300 jitter600 ...
-        # auto  jitter300 MOS300 power300 jitter600 ...
-
         # loop over the requested tests within a bitrate (lines in output text)
         for j in range(5):
             npArrayJitter = dictsBitratesSmall[i]["jitter"][j]
-            # npArrayValueVar = dictsBitrates[i]["bitsPerSecVar"][j]
+            npArrayCurrent = dictsBitratesSmall[i]["current"][j]
             npArrayCheck = dictsBitratesSmall[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
-                print(str(format(npArrayJitter.mean(), ".2f")) + " " + "MOS" + " " + "power" + "  ", end="", flush=True)
+                print(str(format(npArrayJitter.mean(), ".5f")) + " " + str(format(npArrayMOSSmall[i], ".2f")) + " " + str(format(npArrayCurrent.mean(), ".2f")) + "  ", end="", flush=True)
         # print("\n")
 
 
+    # for large
+    print("\n 3D plot large:")
+    # loop over the dictionaries meaning loop over the bitrates (columns in output text)
+    for i in range(len(dictsBitratesLarge)):
+        # for every bitrate we want to get the average jitter, MOS and power
+        # loop over the requested tests within a bitrate (lines in output text)
+        for j in range(5):
+            npArrayJitter = dictsBitratesLarge[i]["jitter"][j]
+            npArrayCurrent = dictsBitratesLarge[i]["current"][j]
+            npArrayCheck = dictsBitratesLarge[i]["dictlist"][j]["res"]
+            # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
+            if npArrayCheck != "null":
+                print(str(format(npArrayJitter.mean(), ".5f")) + " " + str(format(npArrayMOSLarge[i], ".2f")) + " " + str(format(npArrayCurrent.mean(), ".2f")) + "  ", end="", flush=True)
+        # print("\n")
 
-
+    # for auto
+    print("\n 3D plot auto:")
+    # loop over the dictionaries meaning loop over the bitrates (columns in output text)
+    for i in range(len(dictsBitratesAuto)):
+        # for every bitrate we want to get the average jitter, MOS and power
+        # loop over the requested tests within a bitrate (lines in output text)
+        for j in range(5):
+            npArrayJitter = dictsBitratesAuto[i]["jitter"][j]
+            npArrayCurrent = dictsBitratesAuto[i]["current"][j]
+            npArrayCheck = dictsBitratesAuto[i]["dictlist"][j]["res"]
+            # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
+            if npArrayCheck != "null":
+                print(str(format(npArrayJitter.mean(), ".5f")) + " " + str(format(npArrayMOSLarge[i], ".2f")) + " " + str(format(npArrayCurrent.mean(), ".2f")) + "  ", end="", flush=True)
+        # print("\n")
 
     #
     #

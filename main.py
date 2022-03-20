@@ -275,7 +275,6 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
                 if extension == "" and item != ".DS_Store":
                     statsDict = analyzeWebRTCStats(folderpaths[i] + "/" + item + "/" + "webrtc_internals_dump.txt", samplesFromTheBackN=nSamplesFromTheBackN, toSampleN=54)
                     bitsPerSecMeans[i].append(statsDict["bitsPerSec"])
-                    qpSumPerFrameMeans[i].append(statsDict["qpSumPerFrame"])
                     fpsMeans[i].append(statsDict["fps"])
                     widthMeans[i].append(statsDict["width"])
                     heightMeans[i].append(statsDict["height"])
@@ -286,10 +285,19 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
                     availableBWMeans[i].append(statsDict["AvailableBW"])
                     remoteJitterMeans[i].append(statsDict["RemoteInboundJitter"])
                     bitsPerSecSentMeans[i].append(statsDict["bitsPerSecSent"])
-                    qpSumPerFrameSentMeans[i].append(statsDict["qpSumPerFrameSent"])
+                    # depending on the codec we need to scale the qpSum differently
+                    # max VP8 is 126, max H264 is 51
+                    # https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpStreamStats/qpSum
+                    # probably should not compare codecs directly!
+
+                    if requests[i].get("codec") == "H264":
+                        qpSumPerFrameMeans[i].append(statsDict["qpSumPerFrame"]/51*100)
+                        qpSumPerFrameSentMeans[i].append(statsDict["qpSumPerFrameSent"]/51*100)
+                    if requests[i].get("codec") == "VP8":
+                        qpSumPerFrameMeans[i].append(statsDict["qpSumPerFrame"]/127*100)
+                        qpSumPerFrameSentMeans[i].append(statsDict["qpSumPerFrameSent"]/127*100)
 
                     bitsPerSecVars[i].append(statsDict["bitsPerSecVar"])
-                    qpSumPerFrameVars[i].append(statsDict["qpSumPerFrameVar"])
                     fpsVars[i].append(statsDict["fpsVar"])
                     widthVars[i].append(statsDict["widthVar"])
                     heightVars[i].append(statsDict["heightVar"])
@@ -300,10 +308,13 @@ def analyzeTestCustom(folderpath, bitrate, res1, fps1, codec1, res2="null", fps2
                     availableBWVars[i].append(statsDict["AvailableBWVar"])
                     remoteJitterVars[i].append(statsDict["RemoteInboundJitterVar"])
                     bitsPerSecSentVars[i].append(statsDict["bitsPerSecSentVar"])
-                    qpSumPerFrameSentVars[i].append(statsDict["qpSumPerFrameSentVar"])
 
-
-
+                    if requests[i].get("codec") == "H264":
+                        qpSumPerFrameVars[i].append(statsDict["qpSumPerFrameVar"]/51*100)
+                        qpSumPerFrameSentVars[i].append(statsDict["qpSumPerFrameSentVar"]/51*100)
+                    if requests[i].get("codec") == "VP8":
+                        qpSumPerFrameVars[i].append(statsDict["qpSumPerFrameVar"]/127*100)
+                        qpSumPerFrameSentVars[i].append(statsDict["qpSumPerFrameSentVar"]/127*100)
 
 
 
@@ -533,183 +544,223 @@ if __name__ == '__main__':
 
 
     # PC only
-    dictsBitrates = []
-    listBitratesStrings = ["480", "720", "1080", "720H264"]
-    dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="nolimit",
-                      res1="_480_", fps1="10", codec1="VP8",
-                      res2="_480_", fps2="30", codec2="VP8", nSamplesFromTheBackN=60))
-    dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="nolimit",
-                      res1="_720_", fps1="10", codec1="VP8",
-                      res2="_720_", fps2="30", codec2="VP8", nSamplesFromTheBackN=60))
-    dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="nolimit",
-                      res1="_1080_", fps1="10", codec1="VP8",
-                      res2="_1080_", fps2="30", codec2="VP8", nSamplesFromTheBackN=60))
-    dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="nolimit",
-                      res1="_720_", fps1="10", codec1="H264",
-                      res2="_720_", fps2="30", codec2="H264", nSamplesFromTheBackN=60))
+    # dictsBitrates = []
+    # listBitratesStrings = ["480", "720", "1080", "720H264"]
+    # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="nolimit",
+    #                   res1="_480_", fps1="10", codec1="VP8",
+    #                   res2="_480_", fps2="30", codec2="VP8", nSamplesFromTheBackN=60))
+    # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="nolimit",
+    #                   res1="_720_", fps1="10", codec1="VP8",
+    #                   res2="_720_", fps2="30", codec2="VP8", nSamplesFromTheBackN=60))
+    # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="nolimit",
+    #                   res1="_1080_", fps1="10", codec1="VP8",
+    #                   res2="_1080_", fps2="30", codec2="VP8", nSamplesFromTheBackN=60))
+    # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate="nolimit",
+    #                   res1="_720_", fps1="10", codec1="H264",
+    #                   res2="_720_", fps2="30", codec2="H264", nSamplesFromTheBackN=60))
+
+    # 3D plot
+    dictsBitratesSmall = []
+    dictsBitratesLarge = []
+    dictsBitratesAuto = []
+    # listBitratesStrings = ["480", "720", "1080", "720H264"]
+    dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate="300",
+                                           res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate="600",
+                                           res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate="900",
+                                           res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+    dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate="1300",
+                                           res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
 
 
-
-    # we want to calculate the variance of the average calculated from the tests
-    # the formula is: stddev = sqrt(mean(variances)) = sqrt(sum(variances)/n)
-    # https://stats.stackexchange.com/questions/168971/variance-of-an-average-of-random-variables
-    
     ################ Received Bitrate
-    print("\nReceived Bitrate:")
+    print("\n 3D plot:")
     # loop over the dictionaries meaning loop over the bitrates (columns in output text)
-    for i in range(len(dictsBitrates)):
+    for i in range(len(dictsBitratesSmall)):
+        # for every bitrate we want to get the average jitter, MOS and power
+        # small jitter300 MOS300 power300 jitter600 ...
+        # large jitter300 MOS300 power300 jitter600 ...
+        # auto  jitter300 MOS300 power300 jitter600 ...
+
         # loop over the requested tests within a bitrate (lines in output text)
-        print(listBitratesStrings[i] + " ", end="", flush=True)
         for j in range(5):
-            npArrayValue = dictsBitrates[i]["bitsPerSec"][j]
-            npArrayValueVar = dictsBitrates[i]["bitsPerSecVar"][j]
-            npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
+            npArrayJitter = dictsBitratesSmall[i]["jitter"][j]
+            # npArrayValueVar = dictsBitrates[i]["bitsPerSecVar"][j]
+            npArrayCheck = dictsBitratesSmall[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
-        print("\n")
-
-
-
-    ################ Sent bitrate
-    print("Sent Bitrate:")
-    # loop over the dictionaries meaning loop over the bitrates (columns in output text)
-    for i in range(len(dictsBitrates)):
-        # loop over the requested tests within a bitrate (lines in output text)
-        print(listBitratesStrings[i] + " ", end="", flush=True)
-        for j in range(5):
-            npArrayValue = dictsBitrates[i]["bitsPerSecSent"][j]
-            npArrayValueVar = dictsBitrates[i]["bitsPerSecSentVar"][j]
-            npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
-            # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
-            if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
-        print("\n")
-
-    ################ Available BW
-    print("Available Bandwidth:")
-    # loop over the dictionaries meaning loop over the bitrates (columns in output text)
-    for i in range(len(dictsBitrates)):
-        # loop over the requested tests within a bitrate (lines in output text)
-        print(listBitratesStrings[i] + " ", end="", flush=True)
-        for j in range(5):
-            npArrayValue = dictsBitrates[i]["AvailableBW"][j]
-            npArrayValueVar = dictsBitrates[i]["AvailableBWVar"][j]
-            npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
-            # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
-            if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
-        print("\n")
+                print(str(format(npArrayJitter.mean(), ".2f")) + " " + "MOS" + " " + "power" + "  ", end="", flush=True)
+        # print("\n")
 
 
 
 
-    ################ qpSumPerFrame
-    print("qpSumPerFrame:")
-    # loop over the dictionaries meaning loop over the bitrates (columns in output text)
-    for i in range(len(dictsBitrates)):
-        # loop over the requested tests within a bitrate (lines in output text)
-        print(listBitratesStrings[i] + " ", end="", flush=True)
-        for j in range(5):
-            npArrayValue = dictsBitrates[i]["qpSumPerFrame"][j]
-            npArrayValueVar = dictsBitrates[i]["qpSumPerFrameVar"][j]
-            npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
-            # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
-            if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
-        print("\n")
 
-    ################ fps
-    print("fps:")
-    # loop over the dictionaries meaning loop over the bitrates (columns in output text)
-    for i in range(len(dictsBitrates)):
-        # loop over the requested tests within a bitrate (lines in output text)
-        print(listBitratesStrings[i] + " ", end="", flush=True)
-        for j in range(5):
-            npArrayValue = dictsBitrates[i]["fps"][j]
-            npArrayValueVar = dictsBitrates[i]["fpsVar"][j]
-            npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
-            # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
-            if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
-        print("\n")
-
-    ################ pixels
-    print("pixels:")
-    # loop over the dictionaries meaning loop over the bitrates (columns in output text)
-    for i in range(len(dictsBitrates)):
-        # loop over the requested tests within a bitrate (lines in output text)
-        print(listBitratesStrings[i] + " ", end="", flush=True)
-        for j in range(5):
-            npArrayValue = dictsBitrates[i]["pixels"][j]
-            npArrayValueVar = dictsBitrates[i]["pixelsVar"][j]
-            npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
-            # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
-            if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
-        print("\n")
-
-    ################ width
-    print("width:")
-    # loop over the dictionaries meaning loop over the bitrates (columns in output text)
-    for i in range(len(dictsBitrates)):
-        # loop over the requested tests within a bitrate (lines in output text)
-        print(listBitratesStrings[i] + " ", end="", flush=True)
-        for j in range(5):
-            npArrayValue = dictsBitrates[i]["width"][j]
-            npArrayValueVar = dictsBitrates[i]["widthVar"][j]
-            npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
-            # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
-            if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
-        print("\n")
-
-    ################ jitter
-    print("jitter:")
-    # loop over the dictionaries meaning loop over the bitrates (columns in output text)
-    for i in range(len(dictsBitrates)):
-        # loop over the requested tests within a bitrate (lines in output text)
-        print(listBitratesStrings[i] + " ", end="", flush=True)
-        for j in range(5):
-            npArrayValue = dictsBitrates[i]["jitter"][j]
-            npArrayValueVar = dictsBitrates[i]["jitterVar"][j]
-            npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
-            # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
-            if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".5f")) + " " + str(
-                    format(np.sqrt(npArrayValueVar.mean()), ".5f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".5f")) + "  ",
-                      end="", flush=True)
-        print("\n")
-
-    ################ Remote jitter
-    print("Remote jitter:")
-    # loop over the dictionaries meaning loop over the bitrates (columns in output text)
-    for i in range(len(dictsBitrates)):
-        # loop over the requested tests within a bitrate (lines in output text)
-        print(listBitratesStrings[i] + " ", end="", flush=True)
-        for j in range(5):
-            npArrayValue = dictsBitrates[i]["RemoteInboundJitter"][j]
-            npArrayValueVar = dictsBitrates[i]["RemoteInboundJitterVar"][j]
-            npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
-            # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
-            if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".5f")) + " " + str(
-                    format(np.sqrt(npArrayValueVar.mean()), ".5f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".5f")) + "  ",
-                      end="", flush=True)
-        print("\n")
-
-    ################ qpSum/frames sent
-    print("qpSumPerFrame Sent:")
-    # loop over the dictionaries meaning loop over the bitrates (columns in output text)
-    for i in range(len(dictsBitrates)):
-        # loop over the requested tests within a bitrate (lines in output text)
-        print(listBitratesStrings[i] + " ", end="", flush=True)
-        for j in range(5):
-            npArrayValue = dictsBitrates[i]["qpSumPerFrameSent"][j]
-            npArrayValueVar = dictsBitrates[i]["qpSumPerFrameSentVar"][j]
-            npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
-            # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
-            if npArrayCheck != "null":
-                print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
-        print("\n")
-
+    #
+    #
+    #
+    #
+    # # we want to calculate the variance of the average calculated from the tests
+    # # the formula is: stddev = sqrt(mean(variances)) = sqrt(sum(variances)/n)
+    # # https://stats.stackexchange.com/questions/168971/variance-of-an-average-of-random-variables
+    #
+    # ################ Received Bitrate
+    # print("\n\nReceived Bitrate:")
+    # # loop over the dictionaries meaning loop over the bitrates (columns in output text)
+    # for i in range(len(dictsBitrates)):
+    #     # loop over the requested tests within a bitrate (lines in output text)
+    #     print(listBitratesStrings[i] + " ", end="", flush=True)
+    #     for j in range(5):
+    #         npArrayValue = dictsBitrates[i]["bitsPerSec"][j]
+    #         npArrayValueVar = dictsBitrates[i]["bitsPerSecVar"][j]
+    #         npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
+    #         # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
+    #         if npArrayCheck != "null":
+    #             print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
+    #     print("\n")
+    #
+    #
+    #
+    # ################ Sent bitrate
+    # print("Sent Bitrate:")
+    # # loop over the dictionaries meaning loop over the bitrates (columns in output text)
+    # for i in range(len(dictsBitrates)):
+    #     # loop over the requested tests within a bitrate (lines in output text)
+    #     print(listBitratesStrings[i] + " ", end="", flush=True)
+    #     for j in range(5):
+    #         npArrayValue = dictsBitrates[i]["bitsPerSecSent"][j]
+    #         npArrayValueVar = dictsBitrates[i]["bitsPerSecSentVar"][j]
+    #         npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
+    #         # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
+    #         if npArrayCheck != "null":
+    #             print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
+    #     print("\n")
+    #
+    # ################ Available BW
+    # print("Available Bandwidth:")
+    # # loop over the dictionaries meaning loop over the bitrates (columns in output text)
+    # for i in range(len(dictsBitrates)):
+    #     # loop over the requested tests within a bitrate (lines in output text)
+    #     print(listBitratesStrings[i] + " ", end="", flush=True)
+    #     for j in range(5):
+    #         npArrayValue = dictsBitrates[i]["AvailableBW"][j]
+    #         npArrayValueVar = dictsBitrates[i]["AvailableBWVar"][j]
+    #         npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
+    #         # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
+    #         if npArrayCheck != "null":
+    #             print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
+    #     print("\n")
+    #
+    #
+    #
+    #
+    # ################ qpSumPerFrame
+    # print("qpSumPerFrame Received:  ! percentage of 100 of max compression:")
+    # # loop over the dictionaries meaning loop over the bitrates (columns in output text)
+    # for i in range(len(dictsBitrates)):
+    #     # loop over the requested tests within a bitrate (lines in output text)
+    #     print(listBitratesStrings[i] + " ", end="", flush=True)
+    #     for j in range(5):
+    #         npArrayValue = dictsBitrates[i]["qpSumPerFrame"][j]
+    #         npArrayValueVar = dictsBitrates[i]["qpSumPerFrameVar"][j]
+    #         npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
+    #         # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
+    #         if npArrayCheck != "null":
+    #             print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
+    #     print("\n")
+    #
+    # ################ fps
+    # print("fps:")
+    # # loop over the dictionaries meaning loop over the bitrates (columns in output text)
+    # for i in range(len(dictsBitrates)):
+    #     # loop over the requested tests within a bitrate (lines in output text)
+    #     print(listBitratesStrings[i] + " ", end="", flush=True)
+    #     for j in range(5):
+    #         npArrayValue = dictsBitrates[i]["fps"][j]
+    #         npArrayValueVar = dictsBitrates[i]["fpsVar"][j]
+    #         npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
+    #         # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
+    #         if npArrayCheck != "null":
+    #             print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
+    #     print("\n")
+    #
+    # ################ pixels
+    # print("pixels:")
+    # # loop over the dictionaries meaning loop over the bitrates (columns in output text)
+    # for i in range(len(dictsBitrates)):
+    #     # loop over the requested tests within a bitrate (lines in output text)
+    #     print(listBitratesStrings[i] + " ", end="", flush=True)
+    #     for j in range(5):
+    #         npArrayValue = dictsBitrates[i]["pixels"][j]
+    #         npArrayValueVar = dictsBitrates[i]["pixelsVar"][j]
+    #         npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
+    #         # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
+    #         if npArrayCheck != "null":
+    #             print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
+    #     print("\n")
+    #
+    # ################ width
+    # print("width:")
+    # # loop over the dictionaries meaning loop over the bitrates (columns in output text)
+    # for i in range(len(dictsBitrates)):
+    #     # loop over the requested tests within a bitrate (lines in output text)
+    #     print(listBitratesStrings[i] + " ", end="", flush=True)
+    #     for j in range(5):
+    #         npArrayValue = dictsBitrates[i]["width"][j]
+    #         npArrayValueVar = dictsBitrates[i]["widthVar"][j]
+    #         npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
+    #         # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
+    #         if npArrayCheck != "null":
+    #             print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
+    #     print("\n")
+    #
+    # ################ jitter
+    # print("jitter:")
+    # # loop over the dictionaries meaning loop over the bitrates (columns in output text)
+    # for i in range(len(dictsBitrates)):
+    #     # loop over the requested tests within a bitrate (lines in output text)
+    #     print(listBitratesStrings[i] + " ", end="", flush=True)
+    #     for j in range(5):
+    #         npArrayValue = dictsBitrates[i]["jitter"][j]
+    #         npArrayValueVar = dictsBitrates[i]["jitterVar"][j]
+    #         npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
+    #         # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
+    #         if npArrayCheck != "null":
+    #             print(str(format(npArrayValue.mean(), ".5f")) + " " + str(
+    #                 format(np.sqrt(npArrayValueVar.mean()), ".5f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".5f")) + "  ",
+    #                   end="", flush=True)
+    #     print("\n")
+    #
+    # ################ Remote jitter
+    # print("Remote jitter:")
+    # # loop over the dictionaries meaning loop over the bitrates (columns in output text)
+    # for i in range(len(dictsBitrates)):
+    #     # loop over the requested tests within a bitrate (lines in output text)
+    #     print(listBitratesStrings[i] + " ", end="", flush=True)
+    #     for j in range(5):
+    #         npArrayValue = dictsBitrates[i]["RemoteInboundJitter"][j]
+    #         npArrayValueVar = dictsBitrates[i]["RemoteInboundJitterVar"][j]
+    #         npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
+    #         # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
+    #         if npArrayCheck != "null":
+    #             print(str(format(npArrayValue.mean(), ".5f")) + " " + str(
+    #                 format(np.sqrt(npArrayValueVar.mean()), ".5f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".5f")) + "  ",
+    #                   end="", flush=True)
+    #     print("\n")
+    #
+    # ################ qpSum/frames sent
+    # print("qpSumPerFrame Sent ! percentage of 100 of max compression:")
+    # # loop over the dictionaries meaning loop over the bitrates (columns in output text)
+    # for i in range(len(dictsBitrates)):
+    #     # loop over the requested tests within a bitrate (lines in output text)
+    #     print(listBitratesStrings[i] + " ", end="", flush=True)
+    #     for j in range(5):
+    #         npArrayValue = dictsBitrates[i]["qpSumPerFrameSent"][j]
+    #         npArrayValueVar = dictsBitrates[i]["qpSumPerFrameSentVar"][j]
+    #         npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
+    #         # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
+    #         if npArrayCheck != "null":
+    #             print(str(format(npArrayValue.mean(), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + " " + str(format(np.sqrt(npArrayValueVar.mean()), ".2f")) + "  ", end="", flush=True)
+    #     print("\n")
+    #

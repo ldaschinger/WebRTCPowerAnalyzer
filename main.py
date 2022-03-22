@@ -701,6 +701,74 @@ if __name__ == '__main__':
     #                   res2="_1080_", fps2="30", codec2="H264",
     #                   res3="_1440_", fps3="30", codec3="H264", nSamplesFromTheBackN=60))
 
+    \addlegendentry
+    {max
+    jitter
+    low
+    res
+    15
+    fps}
+    \addlegendentry
+    {max
+    jitter
+    low
+    res
+    30
+    fps}
+    \addlegendentry
+    {max
+    jitter
+    high
+    res
+    15
+    fps}
+    \addlegendentry
+    {max
+    jitter
+    high
+    res
+    30
+    fps}
+    \addplot[only
+    marks, mark = triangle *, mark
+    options = {fill = LightBlue, draw = LightBlue,}, xshift = -12, mark
+    size = 2.9
+    pt]
+    % plot[error
+    bars /.cd, y
+    dir = both, y
+    explicit]
+    table[x = x, y = small - max - jitter - 15] {\jitterTableFifteenVsThirtyfps};
+    \addplot[only
+    marks, mark = triangle *, mark
+    options = {fill = DarkBlue, draw = DarkBlue,}, xshift = -4, mark
+    size = 2.9
+    pt]
+    % plot[error
+    bars /.cd, y
+    dir = both, y
+    explicit]
+    table[x = x, y = small - max - jitter - 30] {\jitterTableFifteenVsThirtyfps};
+    \addplot[only
+    marks, mark = triangle *, mark
+    options = {fill = blue, draw = blue,}, xshift = 4, mark
+    size = 2.9
+    pt]
+    % plot[error
+    bars /.cd, y
+    dir = both, y
+    explicit]
+    table[x = x, y = large - max - jitter - 15] {\jitterTableFifteenVsThirtyfps};
+    \addplot[only
+    marks, mark = triangle *, mark
+    options = {fill = purple, draw = purple,}, xshift = 12, mark
+    size = 2.9
+    pt]
+    % plot[error
+    bars /.cd, y
+    dir = both, y
+    explicit]
+    table[x = x, y = large - max - jitter - 30] {\jitterTableFifteenVsThirtyfps};
 
     # ################ 3D plot
     # # small jitter300 MOS300 power300 jitter600 ...

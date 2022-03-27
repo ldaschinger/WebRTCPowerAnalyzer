@@ -37,6 +37,7 @@ def analyzeWebRTCStatsCodecBitrate(filepath):
     timestamps_ms = []
     bitrateValues = []
 
+    print(filepath)
     # get the last timetamp
     # print(filepath)
     with open(filepath) as f:

@@ -45,7 +45,7 @@ if __name__ == '__main__':
                 dlog1.csv/dlog2.csv/dlog3.csv/dlog4.csv/...
     """
 
-    CalcParameterPlots(args)
+    # CalcParameterPlots(args)
     Calc2Dand3Dplots(args)
 
 

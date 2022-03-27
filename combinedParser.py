@@ -22,6 +22,13 @@ from logcatParser import analyzeWebRTCStatsCodecBitrate
 from WebRTCWebAppParser import analyzeWebRTCStats
 from powerParser import analyzeLoggerData
 
+# factors must add up to 1
+FACTOR_JT = 0.1#0.3
+FACTOR_FPS = 0.03#0.03
+FACTOR_BR = 0.02#0.02
+FACTOR_MOS = 0.8#0.59
+
+
 def analyzeTestCustom(folderpath,
                       bitrate1="null", bitrate2="null", bitrate3="null", bitrate4="null", bitrate5="null",
                       res1="null", fps1="null", codec1="null",
@@ -284,12 +291,6 @@ def analyzeTestCustom(folderpath,
         npThroughpScaled[k] = (npbitsPerSecMeans[k].mean() - MIN_TROUGHPT) / DIFF_TROUGHPT * 100
         npCodecbitScaled[k] = (npCodecBitrateMeans[k].mean() - MIN_CODECBIT) / DIFF_CODECBIT * 100
         npMOSScaled[k] = (MOSValues[k] - MIN_MOS) / DIFF_MOS * 100
-
-    # factors must add up to 1
-    FACTOR_JT = 0.3
-    FACTOR_FPS = 0.03
-    FACTOR_BR = 0.02
-    FACTOR_MOS = 0.59
 
     npOverallScore = np.empty([5])
 

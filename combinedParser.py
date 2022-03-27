@@ -287,7 +287,8 @@ def analyzeTestCustom(folderpath,
 
     # factors must add up to 1
     FACTOR_JT = 0.3
-    FACTOR_BFR = 0.11
+    FACTOR_FPS = 0.03
+    FACTOR_BR = 0.02
     FACTOR_MOS = 0.59
 
     npOverallScore = np.empty([5])
@@ -302,16 +303,14 @@ def analyzeTestCustom(folderpath,
     #             = 0.00836 J^2 T + 0.001064 J T^2 + 0.3078 J T + 0.02926 J + 0.003724 T +
     #               0.0025116 B^2 F R^3 + 0.0060858 B F^2 R^2 + 0.0010626 B F R^3 + 0.1127 B F R^2 + 0.011362 B R + 0.027531 F + 0.004807 R
 
-    # Adapted model QoE = 0.3*jitter*troughput/100 + 0.03*framerate + 0.02*bitrate*resolution + 0.59*MOS
+    # Adapted model QoE = 0.3*jitter*troughput/100 + 0.03*framerate + 0.02*bitrate*resolution/100 + 0.59*MOS
     # multiplications must be divided by (multiplicants-1)^100
 
     # want also want to normalize the weights
     for k in range(5):
         # npOverallScore[k] = npJitterScaled[k]*FACTOR_JITTER + npFpsScaled[k]*FACTOR_FPS + npPixelScaled[k]*FACTOR_PIXEL \
         #                     + npThroughpScaled[k]*FACTOR_THROUGHPT + npCodecbitScaled[k]*FACTOR_CODECBIT + npMOSScaled[k]*FACTOR_MOS
-        npOverallScore[k] = FACTOR_JT*npJitterScaled[k]*npThroughpScaled[k]/100 + \
-                            npCodecbitScaled[k]*npFpsScaled[k]*npPixelScaled[k]*FACTOR_BFR/(pow(100, 4)) + \
-                            npMOSScaled[k]*FACTOR_MOS
+        npOverallScore[k] = FACTOR_JT*npJitterScaled[k]*npThroughpScaled[k]/100 + FACTOR_FPS*npFpsScaled[k] + FACTOR_BR*npCodecbitScaled[k]*npPixelScaled[k]/100 + FACTOR_MOS*npMOSScaled[k]
 
 
 

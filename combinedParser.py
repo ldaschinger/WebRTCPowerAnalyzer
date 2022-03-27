@@ -106,7 +106,7 @@ def analyzeTestCustom(folderpath,
 
             MOSValues[i] = MOSDict[requests[i].get("codec")][requests[i].get("bitrate")][requests[i].get("res")][
                                     requests[i].get("fps")]
-
+            print(folderpaths[i])
             for item in os.listdir(folderpaths[i]):
                 name, extension = os.path.splitext(item)
 

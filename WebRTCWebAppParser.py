@@ -211,5 +211,5 @@ def analyzeWebRTCStats(filepath, samplesFromTheBackN = 60, toSampleN=60):
     # Closing file
     f.close()
 
-    print("#", end="", flush=True)
+    # print("#", end="", flush=True)
     return returnDict

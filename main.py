@@ -56,24 +56,24 @@ if __name__ == '__main__':
     dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="600", res1="_small_", fps1="30", codec1="VP8",
                                            res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8",
                                            res4="_auto720_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
-    dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="900", res1="_small_", fps1="30", codec1="VP8",
-                                           res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8",
-                                           res4="_auto720_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
-    dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="1300", res1="_small_", fps1="30", codec1="VP8",
-                                           res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8",
-                                           res4="_auto720_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
-    dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="1800", res1="_small_", fps1="30", codec1="VP8",
-                                           res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8",
-                                           res4="_auto720_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
-    dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="2700", res1="_small_", fps1="30", codec1="VP8",
-                                           res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8",
-                                           res4="_auto720_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
-    dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="4000", res1="_small_", fps1="30", codec1="VP8",
-                                           res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8",
-                                           res4="_auto720_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
-    dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="4750", res1="_small_", fps1="30", codec1="VP8",
-                                           res2="_auto_", fps2="30", codec2="VP8",
-                                           nSamplesFromTheBackN=60))
+    # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="900", res1="_small_", fps1="30", codec1="VP8",
+    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8",
+    #                                        res4="_auto720_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
+    # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="1300", res1="_small_", fps1="30", codec1="VP8",
+    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8",
+    #                                        res4="_auto720_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
+    # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="1800", res1="_small_", fps1="30", codec1="VP8",
+    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8",
+    #                                        res4="_auto720_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
+    # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="2700", res1="_small_", fps1="30", codec1="VP8",
+    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8",
+    #                                        res4="_auto720_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
+    # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="4000", res1="_small_", fps1="30", codec1="VP8",
+    #                                        res2="_large_", fps2="30", codec2="VP8", res3="_auto_", fps3="30", codec3="VP8",
+    #                                        res4="_auto720_", fps4="30", codec4="VP8", nSamplesFromTheBackN=60))
+    # dictsBitrates.append(analyzeTestCustom(args.folderpath, bitrate1="4750", res1="_small_", fps1="30", codec1="VP8",
+    #                                        res2="_auto_", fps2="30", codec2="VP8",
+    #                                        nSamplesFromTheBackN=60))
 
 
 
@@ -629,7 +629,7 @@ if __name__ == '__main__':
             npArrayCheck = dictsBitrates[i]["dictlist"][j]["res"]
             # every printed line will be for a certain bitrate and every average value for a certain test within that bitrate
             if npArrayCheck != "null":
-                print(str(format(npArrayValue, ".2f")) + " ", end="", flush=True)
+                print(str(format(npArrayValue.mean(), ".2f")) + " ", end="", flush=True)
         print("\n")
 
 

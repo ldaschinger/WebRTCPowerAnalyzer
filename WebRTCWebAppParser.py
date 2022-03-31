@@ -1,31 +1,28 @@
+"""
+Extracts various parameters from
+ - .csv Power Analyzer file
+ - WebRTC stats on WebApp side
+ - WebRTC stats on SBc side
+ - codec settings from the logcat trace
+"""
+
 __author__ = "Lukas Daschinger"
 __version__ = "1.0.1"
 __maintainer__ = "Lukas Daschinger"
 __email__ = "ldaschinger@student.ethz.ch"
 
-import getopt
-import os
-import sys
-import pandas as pd
-import matplotlib.pyplot as plt
-import argparse
 import re
 from ast import literal_eval
 import numpy as np
 import json
 
 
-
+# parser for WebRTC stats dumped in Chrome
 def analyzeWebRTCStats(filepath, samplesFromTheBackN = 60, toSampleN=60):
     # print head including sampling interval
     with open(filepath) as myfile:
         head = [next(myfile) for x in range(6)]
     # print(head, "\n")
-
-    # if want to exclude N first samples. default value is recommended at 4 with a normal bitrates ramp up
-    # fromSampleN = 5
-    # toSampleN = 54 # one sample every second taken
-
 
     callIdInboundRegex = re.compile(r'RTCInboundRTPVideoStream_(\d+)-\[bytesReceived_in_bits/s\]') #RTCInboundRTPVideoStream_3703603861-[bytesReceived_in_bits/s]
     callIdOutboundRegex = re.compile(r'RTCOutboundRTPVideoStream_(\d+)-\[bytesSent_in_bits/s\]')  # RTCOutboundRTPVideoStream_506976331-[bytesSent_in_bits/s]
@@ -68,7 +65,7 @@ def analyzeWebRTCStats(filepath, samplesFromTheBackN = 60, toSampleN=60):
           8-4{} - or here
     """
 
-
+    # define the keys for the required values of the JSON file
     stringBitsPerSecReceived = 'RTCInboundRTPVideoStream_' + callIdInbound + '-[bytesReceived_in_bits/s]'
     stringQpSumPerFrame = 'RTCInboundRTPVideoStream_' + callIdInbound + '-[qpSum/framesDecoded]'
     stringFps = 'RTCInboundRTPVideoStream_' + callIdInbound + '-framesPerSecond'
@@ -117,6 +114,7 @@ def analyzeWebRTCStats(filepath, samplesFromTheBackN = 60, toSampleN=60):
         "qpSumPerFrameSentVar": 0,
     }
 
+    # read values from JSON file and calculate mean and variance
     value = data['PeerConnections'][topId]['stats'][stringAvailableBW]['values']
     array = literal_eval(value)
     npArray = np.array(array)
@@ -140,12 +138,6 @@ def analyzeWebRTCStats(filepath, samplesFromTheBackN = 60, toSampleN=60):
     npArray = np.array(array)
     returnDict["qpSumPerFrameSent"] = npArray[-samplesFromTheBackN:].mean()
     returnDict["qpSumPerFrameSentVar"] = npArray[-samplesFromTheBackN:].var()
-
-
-
-
-
-
 
     value = data['PeerConnections'][topId]['stats'][stringBitsPerSecReceived]['values']
     array = literal_eval(value)

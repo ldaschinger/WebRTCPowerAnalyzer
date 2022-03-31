@@ -1,20 +1,15 @@
+"""
+Extracts various parameters from
+ - .csv Power Analyzer file
+ - WebRTC stats on WebApp side
+ - WebRTC stats on SBc side
+ - codec settings from the logcat trace
+"""
 
 __author__ = "Lukas Daschinger"
 __version__ = "1.0.1"
 __maintainer__ = "Lukas Daschinger"
 __email__ = "ldaschinger@student.ethz.ch"
-
-
-import getopt
-import os
-import sys
-import pandas as pd
-import matplotlib.pyplot as plt
-import argparse
-import re
-from ast import literal_eval
-import numpy as np
-import json
 
 from combinedParser import analyzeTestCustom
 
@@ -576,16 +571,29 @@ def Calc2Dand3Dplots(args):
         dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="PC720", res1="_1300_960_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="PC720", res1="_1300_auto720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="PC720", res1="_1300_auto_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+        dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="1300", res1="_large_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+        dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="1800", res1="_large_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+        dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="1300", res1="_auto720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+        dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="1300", res1="_auto_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
 
         dictsBitratesHigh.append(analyzeTestCustom(args.folderpath, bitrate1="PC720", res1="_2700_720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         dictsBitratesHigh.append(analyzeTestCustom(args.folderpath, bitrate1="PC720", res1="_2700_960_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         dictsBitratesHigh.append(analyzeTestCustom(args.folderpath, bitrate1="PC720", res1="_2700_auto720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         dictsBitratesHigh.append(analyzeTestCustom(args.folderpath, bitrate1="PC720", res1="_2700_auto_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+        dictsBitratesHigh.append(analyzeTestCustom(args.folderpath, bitrate1="2700", res1="_small_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+        dictsBitratesHigh.append(analyzeTestCustom(args.folderpath, bitrate1="2700", res1="_large_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+        dictsBitratesHigh.append(analyzeTestCustom(args.folderpath, bitrate1="2700", res1="_auto720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+        dictsBitratesHigh.append(analyzeTestCustom(args.folderpath, bitrate1="2700", res1="_auto_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+
 
         dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="PC720", res1="_nolim_720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="PC720", res1="_nolim_960_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="PC720", res1="_nolim_auto720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="PC720", res1="_nolim_auto_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+        dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="nolimit", res1="_720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+        dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="nolimit", res1="_960_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+        dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="nolimit", res1="_auto720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
+        dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="nolimit", res1="_auto_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
 
         ######### 1080p
         # dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="PC1080", res1="_1300_720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))

@@ -1,19 +1,20 @@
+"""
+Extracts various parameters from
+ - .csv Power Analyzer file
+ - WebRTC stats on WebApp side
+ - WebRTC stats on SBc side
+ - codec settings from the logcat trace
+"""
+
 __author__ = "Lukas Daschinger"
 __version__ = "1.0.1"
 __maintainer__ = "Lukas Daschinger"
 __email__ = "ldaschinger@student.ethz.ch"
 
-import getopt
-import os
-import sys
-import pandas as pd
-import matplotlib.pyplot as plt
-import argparse
-import re
-from ast import literal_eval
-import numpy as np
-import json
 
+import pandas as pd
+
+# simple calculation of average current from power analyzer file
 def analyzeLoggerData(filepath):
     with open(filepath) as myfile:
         head = [next(myfile) for x in range(6)]

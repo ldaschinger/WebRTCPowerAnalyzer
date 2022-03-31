@@ -1,8 +1,9 @@
 """
-Extracts various values from Keysight Data Logger *.csv file like
-average current, average power, cumulative sum of energy used
-
-Possibility to plot the current and energy consumption with matplotlib
+Extracts various parameters from
+ - .csv Power Analyzer file
+ - WebRTC stats on WebApp side
+ - WebRTC stats on SBc side
+ - codec settings from the logcat trace
 """
 
 __author__ = "Lukas Daschinger"
@@ -11,20 +12,9 @@ __maintainer__ = "Lukas Daschinger"
 __email__ = "ldaschinger@student.ethz.ch"
 
 
-import getopt
-import os
-import sys
-import pandas as pd
-import matplotlib.pyplot as plt
-import argparse
-import re
-from ast import literal_eval
-import numpy as np
-import json
 
-from combinedParser import analyzeTestCustom
+import argparse
 from QoEPlots import Calc2Dand3Dplots
-from ParameterPlots import CalcParameterPlots
 
 
 if __name__ == '__main__':
@@ -36,7 +26,6 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-
     """
     directory structure:
     folderpath
@@ -45,6 +34,7 @@ if __name__ == '__main__':
                 dlog1.csv/dlog2.csv/dlog3.csv/dlog4.csv/...
     """
 
+    # extract information and print out in table form for latex pgfplots
     # CalcParameterPlots(args)
     Calc2Dand3Dplots(args)
 

@@ -1,3 +1,14 @@
+"""
+Includes the computes MOS scores in dictionnary form
+"""
+
+__author__ = "Lukas Daschinger"
+__version__ = "1.0.1"
+__maintainer__ = "Lukas Daschinger"
+__email__ = "ldaschinger@student.ethz.ch"
+
+
+
 MOSDict = {
 
 #################### H264 ################################################################################

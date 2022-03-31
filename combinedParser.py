@@ -1,4 +1,10 @@
-
+"""
+Extracts various parameters from
+ - .csv Power Analyzer file
+ - WebRTC stats on WebApp side
+ - WebRTC stats on SBc side
+ - codec settings from the logcat trace
+"""
 
 __author__ = "Lukas Daschinger"
 __version__ = "1.0.1"
@@ -6,29 +12,22 @@ __maintainer__ = "Lukas Daschinger"
 __email__ = "ldaschinger@student.ethz.ch"
 
 
-import getopt
 import os
-import sys
-import pandas as pd
-import matplotlib.pyplot as plt
-import argparse
-import re
-from ast import literal_eval
 import numpy as np
-import json
 
 from MOSDictionnary import MOSDict
 from logcatParser import analyzeWebRTCStatsCodecBitrate
 from WebRTCWebAppParser import analyzeWebRTCStats
 from powerParser import analyzeLoggerData
 
-# factors must add up to 1
-FACTOR_JT = 0.1#0.3
-FACTOR_FPS = 0.03#0.03
-FACTOR_BR = 0.02#0.02
-FACTOR_MOS = 0.8#0.59
+# weights for terms for QoE calculation
+FACTOR_JT = 0.1
+FACTOR_FPS = 0.03
+FACTOR_BR = 0.02
+FACTOR_MOS = 0.8
 
-
+# 'top' function calling other parsers for all the traces
+# a max of 5 test cases can be requested to be parsed and printed out
 def analyzeTestCustom(folderpath,
                       bitrate1="null", bitrate2="null", bitrate3="null", bitrate4="null", bitrate5="null",
                       res1="null", fps1="null", codec1="null",
@@ -45,6 +44,7 @@ def analyzeTestCustom(folderpath,
         bitrate5 = bitrate1
 
 
+    # create array with the requested test parameters
     requests = [dict() for x in range(5)]
     requests[0] = {"bitrate":bitrate1, "res": res1, "fps": fps1, "codec": codec1}
     requests[1] = {"bitrate":bitrate2, "res": res2, "fps": fps2, "codec": codec2}
@@ -52,11 +52,12 @@ def analyzeTestCustom(folderpath,
     requests[3] = {"bitrate":bitrate4, "res": res4, "fps": fps4, "codec": codec4}
     requests[4] = {"bitrate":bitrate5, "res": res5, "fps": fps5, "codec": codec5}
 
+    # define the exact folderpath for each test that should be analyzed
     folderpaths = []
     for i in range(5):
         folderpaths.append(folderpath + requests[i].get("codec") + "/" + requests[i].get("bitrate") + "/" + requests[i].get("bitrate") + requests[i].get("res") + requests[i].get("fps"))
 
-
+    # create 2D array for test cases and each test run per test case
     bitsPerSecMeans = [[0 for x in range(0)] for y in range(5)]
     qpSumPerFrameMeans = [[0 for x in range(0)] for y in range(5)]
     fpsMeans = [[0 for x in range(0)] for y in range(5)]
@@ -96,11 +97,8 @@ def analyzeTestCustom(folderpath,
     qpSumPerFrameSentVars = [[0 for x in range(0)] for y in range(5)]
 
 
-
+    # at max 5 different test cases are requested
     for i in range(5):
-
-
-
         # if we have varying number of tests and therefore .csv files available we must find all in the folder
         if requests[i].get("res") != "null":
 
@@ -134,12 +132,13 @@ def analyzeTestCustom(folderpath,
                     availableBWMeans[i].append(statsDict["AvailableBW"])
                     remoteJitterMeans[i].append(statsDict["RemoteInboundJitter"])
                     bitsPerSecSentMeans[i].append(statsDict["bitsPerSecSent"])
+
+                    jitterMax[i].append(statsDict["jitterMax"])
+
                     # depending on the codec we need to scale the qpSum differently
                     # max VP8 is 126, max H264 is 51
                     # https://developer.mozilla.org/en-US/docs/Web/API/RTCRtpStreamStats/qpSum
                     # probably should not compare codecs directly!
-
-                    jitterMax[i].append(statsDict["jitterMax"])
 
                     # sometimes _auto_ is also in the H264 folder so if we use auto we always have VP8
                     if requests[i].get("codec") == "H264" and requests[i].get("res") != "_auto_" and requests[i].get("res") != "_auto720_":
@@ -206,7 +205,7 @@ def analyzeTestCustom(folderpath,
     npqpSumPerFrameSentVars = [np.empty([5]) for x in range(5)]
 
 
-
+    #convert to np array
     for k in range(5):
         # if we have varying number of tests and therefore .csv files available we must find all in the folder
         if requests[k].get("res") != "null":
@@ -248,7 +247,7 @@ def analyzeTestCustom(folderpath,
 
 
 
-    # calculating the overallScore based on jitter, fps etc.
+    ############## calculating the QoE based on jitter, fps etc. ##############
 
     # we want to scale the parameters all to the range 0-100
     # min and max correspond to the min and max values over all tests made
@@ -314,7 +313,7 @@ def analyzeTestCustom(folderpath,
         npOverallScore[k] = FACTOR_JT*npJitterScaled[k]*npThroughpScaled[k]/100 + FACTOR_FPS*npFpsScaled[k] + FACTOR_BR*npCodecbitScaled[k]*npPixelScaled[k]/100 + FACTOR_MOS*npMOSScaled[k]
 
 
-
+    # return the resulting arrays in a dictionary
     returnedDictTests = {
         "bitsPerSec": npbitsPerSecMeans,
         "qpSumPerFrame": npqpSumPerFrameMeans,
@@ -356,9 +355,3 @@ def analyzeTestCustom(folderpath,
     }
 
     return returnedDictTests
-
-    # for i in range(5):
-    #     # if we have varying number of tests and therefore .csv files available we must find all in the folder
-    #     if dictlist[i].get("res") != "null":
-    #         print(str(format(npbitsPerSecMeans[i].mean(), ".2f")) + " " + str(format(npbitsPerSecMeans[i].std(), ".2f")) + " " + str(format(npbitsPerSecMeans[i].std(), ".2f")) + "  ", end="", flush=True)
-    # print("\n")

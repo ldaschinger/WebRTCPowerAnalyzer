@@ -1,29 +1,28 @@
+"""
+Extracts various parameters from
+ - .csv Power Analyzer file
+ - WebRTC stats on WebApp side
+ - WebRTC stats on SBc side
+ - codec settings from the logcat trace
+"""
+
 __author__ = "Lukas Daschinger"
 __version__ = "1.0.1"
 __maintainer__ = "Lukas Daschinger"
 __email__ = "ldaschinger@student.ethz.ch"
 
-import getopt
-import os
-import sys
-import pandas as pd
-import matplotlib.pyplot as plt
-import argparse
 import re
-from ast import literal_eval
 import numpy as np
-import json
 
-
-
-
+# parser for logcat trace files, extracts coded settings
 def analyzeWebRTCStatsCodecBitrate(filepath):
     # print head including sampling interval
     with open(filepath) as myfile:
         head = [next(myfile) for x in range(6)]
     # print(head, "\n")
 
-    #02-15 10:21:28.803  2621  3794 I ExtendedACodec:   int32_t bitrate =
+
+    # define the Regex expressions
     # group 3 = hour
     # group 4 = minute
     # group 5 = second
@@ -45,10 +44,6 @@ def analyzeWebRTCStatsCodecBitrate(filepath):
         last = lines[-1]
         #detect last line and get its timestamp
         for match in re.finditer(timestampRegex, last):
-            # print(match.group(3))
-            # print(match.group(4))
-            # print(match.group(5))
-            # print(match.group(6))
             lastTimestamp = (int(match.group(3)) * 3600000) + int(match.group(4)) * 60000 + int(match.group(5)) * 1000 + int(match.group(6))
 
     for i, line in enumerate(open(filepath)):
@@ -56,10 +51,6 @@ def analyzeWebRTCStatsCodecBitrate(filepath):
             # print('Found on line %s: %s' % (i + 1, match.group(1)))
             # now append it to the availableOutgoingBitrate list
             bitrateValues.append(match.group(9))
-            # print(match.group(3))
-            # print(match.group(4))
-            # print(match.group(5))
-            # print(match.group(6))
             timestamp = (int(match.group(3)) * 3600000) + int(match.group(4)) * 60000 + int(match.group(5)) * 1000 + int(match.group(6))
             timestamps_ms.append(timestamp)
 

@@ -180,7 +180,6 @@ def Calc2Dand3Dplots(args):
         #                                        res1="_auto_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
 
 
-
         #####################  BITRATE  ##################
         # loop over the dictionaries meaning loop over the bitrates (columns in output text)
         print("\n")

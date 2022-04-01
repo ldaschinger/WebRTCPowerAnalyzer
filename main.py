@@ -35,8 +35,8 @@ if __name__ == '__main__':
     """
 
     # extract information and print out in table form for latex pgfplots
-    # CalcParameterPlots(args)
-    Calc2Dand3Dplots(args)
+    # CalcParameterPlots(args) # print results for originl plots with separate scores
+    Calc2Dand3Dplots(args) # print results for QoE estimation value
 
 
 

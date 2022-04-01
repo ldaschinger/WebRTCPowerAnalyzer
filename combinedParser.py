@@ -20,11 +20,7 @@ from logcatParser import analyzeWebRTCStatsCodecBitrate
 from WebRTCWebAppParser import analyzeWebRTCStats
 from powerParser import analyzeLoggerData
 
-# weights for terms for QoE calculation
-FACTOR_JT = 0.1
-FACTOR_FPS = 0.03
-FACTOR_BR = 0.02
-FACTOR_MOS = 0.8
+
 
 # 'top' function calling other parsers for all the traces
 # a max of 5 test cases can be requested to be parsed and printed out
@@ -275,6 +271,8 @@ def analyzeTestCustom(folderpath,
     MAX_MOS = 4
     DIFF_MOS = 2
 
+    SCALE_RANGE = 5
+
     npJitterScaled = np.empty([5])
     npFpsScaled = np.empty([5])
     npPixelScaled = np.empty([5])
@@ -284,12 +282,12 @@ def analyzeTestCustom(folderpath,
 
     for k in range(5):
         # jitter scale must be reversed since lower means better
-        npJitterScaled[k] = (MAX_JITTER - npjitterMeans[k].mean())/DIFF_JITTER*100
-        npFpsScaled[k] = (npfpsMeans[k].mean() - MIN_FPS) / DIFF_FPS * 100
-        npPixelScaled[k] = (nppixelsMeans[k].mean() - MIN_PIXEL) / DIFF_PIXEL * 100
-        npThroughpScaled[k] = (npbitsPerSecMeans[k].mean() - MIN_TROUGHPT) / DIFF_TROUGHPT * 100
-        npCodecbitScaled[k] = (npCodecBitrateMeans[k].mean() - MIN_CODECBIT) / DIFF_CODECBIT * 100
-        npMOSScaled[k] = (MOSValues[k] - MIN_MOS) / DIFF_MOS * 100
+        npJitterScaled[k] = (MAX_JITTER - npjitterMeans[k].mean())/DIFF_JITTER*SCALE_RANGE
+        npFpsScaled[k] = (npfpsMeans[k].mean() - MIN_FPS) / DIFF_FPS * SCALE_RANGE
+        npPixelScaled[k] = (nppixelsMeans[k].mean() - MIN_PIXEL) / DIFF_PIXEL * SCALE_RANGE
+        npThroughpScaled[k] = (npbitsPerSecMeans[k].mean() - MIN_TROUGHPT) / DIFF_TROUGHPT * SCALE_RANGE
+        npCodecbitScaled[k] = (npCodecBitrateMeans[k].mean() - MIN_CODECBIT) / DIFF_CODECBIT * SCALE_RANGE
+        npMOSScaled[k] = (MOSValues[k] - MIN_MOS) / DIFF_MOS * SCALE_RANGE
 
     npOverallScore = np.empty([5])
 
@@ -303,14 +301,35 @@ def analyzeTestCustom(folderpath,
     #             = 0.00836 J^2 T + 0.001064 J T^2 + 0.3078 J T + 0.02926 J + 0.003724 T +
     #               0.0025116 B^2 F R^3 + 0.0060858 B F^2 R^2 + 0.0010626 B F R^3 + 0.1127 B F R^2 + 0.011362 B R + 0.027531 F + 0.004807 R
 
-    # Adapted model QoE = 0.3*jitter*troughput/100 + 0.03*framerate + 0.02*bitrate*resolution/100 + 0.59*MOS
-    # multiplications must be divided by (multiplicants-1)^100
+
+    # Adapted model 1 QoE  = 0.3*jitter*troughput/100 + 0.03*framerate + 0.02*bitrate*resolution/100 + 0.59*MOS
+    # Adapted model 1 QoE  = 0.00836 TJ2+ 0.3078 TJ +  0.0060858 B F^2 R^2 + MOS  + 0.1127 B F R^2 ->  B R^2 is replaced with the MOS score
+
+    # weights for terms for QoE calculation
+    FACTOR_TJ2 = 0.00836  # adapted impact: 0.00836*5*5 = 0.21
+    FACTOR_TJ = 0.3078      # adapted impact: 0.3078*5 = 1.539
+    FACTOR_BF2R2 = 0.0060858  # adapted impact when replace BR2 with MOS: 0.0060858*5*5 = 0.152
+    FACTOR_BFR2 = 0.1127  # adapted impact when replace BR2 with MOS: 0.1127*5 = 0.56
+    FACTOR_MOS = 7.7    # equal to  adapted impact: Same as original factor since only one multiplicant
 
     # want also want to normalize the weights
     for k in range(5):
-        # npOverallScore[k] = npJitterScaled[k]*FACTOR_JITTER + npFpsScaled[k]*FACTOR_FPS + npPixelScaled[k]*FACTOR_PIXEL \
-        #                     + npThroughpScaled[k]*FACTOR_THROUGHPT + npCodecbitScaled[k]*FACTOR_CODECBIT + npMOSScaled[k]*FACTOR_MOS
-        npOverallScore[k] = FACTOR_JT*npJitterScaled[k]*npThroughpScaled[k]/100 + FACTOR_FPS*npFpsScaled[k] + FACTOR_BR*npCodecbitScaled[k]*npPixelScaled[k]/100 + FACTOR_MOS*npMOSScaled[k]
+        # simplified model
+        # npOverallScore[k] = FACTOR_JT*npJitterScaled[k]*npThroughpScaled[k]/100 + FACTOR_FPS*npFpsScaled[k] + FACTOR_BR*npCodecbitScaled[k]*npPixelScaled[k]/100 + FACTOR_MOS*npMOSScaled[k]
+
+        # original model
+        # npOverallScore[k] = FACTOR_TJ2 * npJitterScaled[k] * npJitterScaled[k] * npThroughpScaled[k] + \
+        #                     FACTOR_TJ * npJitterScaled[k] * npThroughpScaled[k] + \
+        #                     FACTOR_BF2R2 * npCodecbitScaled[k] * npFpsScaled[k] * npFpsScaled[k] * npPixelScaled[k] * npPixelScaled[k] + \
+        #                     FACTOR_BFR2 * npCodecbitScaled[k] * npFpsScaled[k] * npPixelScaled[k] * npPixelScaled[k] + \
+        #                     25 * npMOSScaled[k]
+
+        # adapted model
+        npOverallScore[k] = FACTOR_TJ2 * npJitterScaled[k] * npJitterScaled[k] * npThroughpScaled[k] + \
+                            FACTOR_TJ * npJitterScaled[k] * npThroughpScaled[k] + \
+                            FACTOR_BF2R2 * npFpsScaled[k] * npFpsScaled[k] * npMOSScaled[k] + \
+                            FACTOR_BFR2 * npFpsScaled[k] * npMOSScaled[k] + \
+                            FACTOR_MOS * npMOSScaled[k]
 
 
     # return the resulting arrays in a dictionary

@@ -11,6 +11,8 @@ __version__ = "1.0.1"
 __maintainer__ = "Lukas Daschinger"
 __email__ = "ldaschinger@student.ethz.ch"
 
+import numpy as np
+
 from combinedParser import analyzeTestCustom
 
 
@@ -20,45 +22,45 @@ def Calc2Dand3Dplots(args):
         dictsBitratesLarge = []
         dictsBitratesAuto720 = []
         dictsBitratesAuto = []
-        dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="300",
-                                               res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="600",
-                                               res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="900",
-                                               res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="1300",
-                                               res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="1800",
-                                               res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="2700",
-                                               res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="4000",
-                                               res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="4750",
-                                               res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="6000",
-                                               res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-
-
-        dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="300",
-                                               res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="600",
-                                               res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="900",
-                                               res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="1300",
-                                               res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="1800",
-                                               res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="2700",
-                                               res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="4000",
-                                               res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="4750",
-                                               res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-        dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="6000",
-                                               res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-
+        # dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="300",
+        #                                        res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="600",
+        #                                        res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="900",
+        #                                        res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="1300",
+        #                                        res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="1800",
+        #                                        res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="2700",
+        #                                        res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="4000",
+        #                                        res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="4750",
+        #                                        res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesSmall.append(analyzeTestCustom(args.folderpath, bitrate1="6000",
+        #                                        res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        #
+        #
+        # dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="300",
+        #                                        res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="600",
+        #                                        res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="900",
+        #                                        res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="1300",
+        #                                        res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="1800",
+        #                                        res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="2700",
+        #                                        res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="4000",
+        #                                        res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="4750",
+        #                                        res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        # dictsBitratesLarge.append(analyzeTestCustom(args.folderpath, bitrate1="6000",
+        #                                        res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
+        #
         dictsBitratesAuto720.append(analyzeTestCustom(args.folderpath, bitrate1="300",
                                                res1="_auto720_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
         dictsBitratesAuto720.append(analyzeTestCustom(args.folderpath, bitrate1="600",
@@ -97,7 +99,7 @@ def Calc2Dand3Dplots(args):
         dictsBitratesAuto.append(analyzeTestCustom(args.folderpath, bitrate1="6000",
                                                res1="_auto_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
 
-        # ################### VP8 30 fps
+        ################### VP8 30 fps
         # dictsBitratesSmall = []
         # dictsBitratesLarge = []
         # dictsBitratesAuto720 = []
@@ -179,6 +181,63 @@ def Calc2Dand3Dplots(args):
         # dictsBitratesAuto.append(analyzeTestCustom(args.folderpath, bitrate1="6000",
         #                                        res1="_auto_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
 
+        # #####################  BITRATE auto720 vs auto2884 ##################
+        # # calculate the average difference in power and QoE between auto 2448 and auto 720
+        # # eg power: we need to go point by point, then take the average and then calculate the percentage
+        # # average(pwr300diff = pwr3002448 - pwr300720, pwr600diff = pwr6002448 - pwr600720, ....)
+        # npQoEAuto = np.empty(7)
+        # npCurrentAuto = np.empty(7)
+        # npQoEAuto720p = np.empty(7)
+        # npCurrentAuto720 = np.empty(7)
+        #
+        # valuePairs = 7
+        # # iterate over all bitrates to create np arrays of the bitrate
+        # for i in range(valuePairs):
+        #     npQoEAuto[i] = dictsBitratesAuto[i]["overallScore"][0]
+        #     npArrayCurrent = dictsBitratesAuto[i]["current"][0]
+        #     npCurrentAuto[i] = npArrayCurrent.mean()
+        #
+        #     npQoEAuto720p[i] = dictsBitratesAuto720[i]["overallScore"][0]
+        #     npArrayCurrent720p = dictsBitratesAuto720[i]["current"][0]
+        #     npCurrentAuto720[i] = npArrayCurrent720p.mean()
+        #
+        # # increase = (Final Value − Starting Value)/Starting value
+        # IncCurrent = (npCurrentAuto - npCurrentAuto720)/npCurrentAuto720
+        # IncQoE = (npQoEAuto - npQoEAuto720p) / npQoEAuto720p
+        #
+        # print("increase in current " + str(format(IncCurrent.mean()*100, ".2f")) + " percent")
+        # print("increase in QoE " + str(format(IncQoE.mean()*100, ".2f")) + " percent")
+
+
+        #####################  BITRATE auto720 vs best manual ##################
+        npQoEAuto = np.empty(7)
+        npCurrentAuto = np.empty(7)
+        npQoEAuto720p = np.empty(7)
+        npCurrentAuto720 = np.empty(7)
+
+        valuePairs = 7
+        # iterate over all bitrates to create np arrays of the bitrate
+        for i in range(valuePairs):
+            npQoEAuto[i] = dictsBitratesAuto[i]["overallScore"][0]
+            npArrayCurrent = dictsBitratesAuto[i]["current"][0]
+            npCurrentAuto[i] = npArrayCurrent.mean()
+
+            npQoEAuto720p[i] = dictsBitratesAuto720[i]["overallScore"][0]
+            npArrayCurrent720p = dictsBitratesAuto720[i]["current"][0]
+            npCurrentAuto720[i] = npArrayCurrent720p.mean()
+
+        # increase = (Final Value − Starting Value)/Starting value
+        IncCurrent = (npCurrentAuto - npCurrentAuto720)/npCurrentAuto720
+        IncQoE = (npQoEAuto - npQoEAuto720p) / npQoEAuto720p
+
+        print("increase in current " + str(format(IncCurrent.mean()*100, ".2f")) + " percent")
+        print("increase in QoE " + str(format(IncQoE.mean()*100, ".2f")) + " percent")
+
+
+
+
+
+
 
         #####################  BITRATE  ##################
         # loop over the dictionaries meaning loop over the bitrates (columns in output text)
@@ -257,7 +316,7 @@ def Calc2Dand3Dplots(args):
 
 
 
-        ###### H264 resolution limited vs also bitrate
+        # ##### H264 resolution limited vs also bitrate
         # dictsBitratesLow = []
         # dictsBitratesMedium = []
         # dictsBitratesHigh = []
@@ -290,7 +349,7 @@ def Calc2Dand3Dplots(args):
         # dictsBitratesUnlimited.append(analyzeTestCustom(args.folderpath, bitrate1="nolimit", res1="_1080_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
         # dictsBitratesUnlimited.append(analyzeTestCustom(args.folderpath, bitrate1="nolimit", res1="_1440_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
 
-        ###### VP8 resolution limited vs also bitrate
+        # ##### VP8 resolution limited vs also bitrate
         # dictsBitratesLow = []
         # dictsBitratesMedium = []
         # dictsBitratesHigh = []
@@ -507,7 +566,7 @@ def Calc2Dand3Dplots(args):
         # dictsBitrates30fps.append(analyzeTestCustom(args.folderpath, bitrate1="4000", res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
         # dictsBitrates30fps.append(analyzeTestCustom(args.folderpath, bitrate1="6000", res1="_small_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
         # dictsBitrates30fps.append(analyzeTestCustom(args.folderpath, bitrate1="6000", res1="_large_", fps1="30", codec1="H264", nSamplesFromTheBackN=60))
-
+        #
         # ##################### VP8 vs H264 ##################
         # #loop over the dictionaries meaning loop over the bitrates (columns in output text)
         # print("\n")
@@ -549,7 +608,7 @@ def Calc2Dand3Dplots(args):
         dictsBitratesUnlim = []
 
 
-        ######### 480p
+        ######## 480p
         # dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="PC480", res1="_1300_720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         # dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="PC480", res1="_1300_960_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         # dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="PC480", res1="_1300_auto720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
@@ -594,7 +653,7 @@ def Calc2Dand3Dplots(args):
         # dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="nolimit", res1="_auto720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         # dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="nolimit", res1="_auto_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
 
-        ######### 1080p
+        # ######## 1080p
         # dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="PC1080", res1="_1300_720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         # dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="PC1080", res1="_1300_960_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         # dictsBitratesLow.append(analyzeTestCustom(args.folderpath, bitrate1="PC1080", res1="_1300_auto720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
@@ -609,11 +668,11 @@ def Calc2Dand3Dplots(args):
         # dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="PC1080", res1="_nolim_960_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         # dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="PC1080", res1="_nolim_auto720_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
         # dictsBitratesUnlim.append(analyzeTestCustom(args.folderpath, bitrate1="PC1080", res1="_nolim_auto_", fps1="30", codec1="VP8", nSamplesFromTheBackN=60))
-
-
-
         #
-        # ##################### BIDIR 480p ##################
+        #
+        #
+        #
+        # ##################### BIDIR ##################
         # #loop over the dictionaries meaning loop over the bitrates (columns in output text)
         # print("\n")
         # for i in range(len(dictsBitratesLow)):

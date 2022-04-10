@@ -310,7 +310,7 @@ def analyzeTestCustom(folderpath,
     FACTOR_TJ = 0.3078      # adapted impact: 0.3078*5 = 1.539
     FACTOR_BF2R2 = 0.0060858  # adapted impact when replace BR2 with MOS: 0.0060858*5*5 = 0.152
     FACTOR_BFR2 = 0.1127  # adapted impact when replace BR2 with MOS: 0.1127*5 = 0.56
-    FACTOR_MOS = 7.7    # equal to  adapted impact: Same as original factor since only one multiplicant
+    FACTOR_MOS = 7.6    # equal to  adapted impact: Same as original factor since only one multiplicant
 
     # want also want to normalize the weights
     for k in range(5):
